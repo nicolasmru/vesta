@@ -1581,6 +1581,15 @@ if [ "$spamd" = 'yes' ]; then
     echo "=== Patching spamassassin dns_server"
     sed -i "s/report_safe 1/report_safe 1\n\ndns_server 127.0.0.1/g" /etc/spamassassin/local.cf
 
+    echo "== Adding myVesta rules to SpamAssassin"
+    cat <<EOF > /etc/spamassassin/myvesta.cf
+score RCVD_IN_RP_SAFE 0
+score RCVD_IN_RP_CERTIFIED 0
+score SPF_FAIL 3.0
+score SPF_SOFTFAIL 4.0
+score SPF_NONE 4.0
+EOF
+
     wget -nv -O /etc/spamassassin/barracuda.cf http://c.myvestacp.com/tools/spamassassin/barracuda.cf
     ensure_startup $currentservice
     systemctl restart $currentservice
