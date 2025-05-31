@@ -38,8 +38,13 @@ if(!isset($_SESSION['user_combined_ip'])){
     $_SESSION['user_combined_ip'] = $user_combined_ip;
 }
 
+$SKIP_IP_CHECK = false;
+if (isset($_SESSION['DISABLE_IP_CHECK']) && $_SESSION['DISABLE_IP_CHECK'] == 'yes') {
+    $SKIP_IP_CHECK = true;
+}
+
 // Checking user to use session from the same IP he has been logged in
-if($_SESSION['user_combined_ip'] != $user_combined_ip && $_SERVER['REMOTE_ADDR'] != '127.0.0.1'){
+if ($_SESSION['user_combined_ip'] != $user_combined_ip && $_SERVER['REMOTE_ADDR'] != '127.0.0.1' && $SKIP_IP_CHECK==false) {
     session_destroy();
     session_start();
     $_SESSION['request_uri'] = $_SERVER['REQUEST_URI'];
