@@ -53,6 +53,7 @@ function myvesta_check_args ($requried_arguments, $arguments) {
     $argument_counter=count($argv);
     $argument_counter--;
     $argv[0]=str_replace('/usr/local/vesta/bin/', '', $argv[0]);
+    $command=$argv[0];
     // myvesta_echo ( "-------------------- ".$argv[0]." --------------------\n");
     if ($argument_counter<$requried_arguments) {
         $arguments=str_replace(" ", "' '", $arguments);
