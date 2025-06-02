@@ -90,6 +90,13 @@ if [ $fail2ban_running -eq 1 ]; then
 fi
 if [ -f "/var/lib/fail2ban/fail2ban.sqlite3" ]; then
     rm /var/lib/fail2ban/fail2ban.sqlite3
+    if [ -f "/etc/nginx/conf.d/block.conf" ]; then
+        truncate -s 0 /etc/nginx/conf.d/block.conf
+        nginx_running=$(/usr/local/vesta/bin/v-list-sys-services | grep 'nginx' | grep -c 'running')
+        if [ $nginx_running -eq 1 ]; then
+            systemctl restart nginx
+        fi
+    fi
 fi
 if [ $fail2ban_running -eq 1 ]; then
     systemctl start fail2ban
