@@ -23,7 +23,7 @@ is_package_avalable() {
     usr_data=$(cat $USER_DATA/user.conf)
     IFS=$'\n'
     for key in $usr_data; do
-        eval ${key%%=*}=${key#*=}
+        parse_object_kv_list_non_eval $key
     done
 
     WEB_DOMAINS='0'
@@ -76,8 +76,8 @@ is_package_avalable() {
 }
 
 change_user_package() {
-    eval $(cat $USER_DATA/user.conf)
-    eval $(cat $VESTA/data/packages/$package.pkg |egrep -v "TIME|DATE")
+    parse_object_kv_list_non_eval $(cat $USER_DATA/user.conf)
+    parse_object_kv_list_non_eval $(cat $VESTA/data/packages/$package.pkg |egrep -v "TIME|DATE")
     echo "FNAME='$FNAME'
 LNAME='$LNAME'
 PACKAGE='$package'
