@@ -101,7 +101,7 @@ myhelp() {
     echo "m def    = install php-memcached if needed"
     echo "check fc = check if FreshClam is up"
     echo "-----------------------------"
-    echo "enable-ssh-root-password-login = Allow root password authentication via SSH and set the root password to match the password for the admin account"
+    echo "enable-ssh-root-password-login = Allow root password authentication via SSH"
     echo "id_rsa = generate id_rsa and id_rsa.pub if it does not exist and show id_rsa.pub"
     echo "-----------------------------"
 }
@@ -535,17 +535,10 @@ do
         echo "--- New settings ---"
         grep '^PermitRoot' /etc/ssh/sshd_config
         echo "--------------------"
-        root_password=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | head -c 32)
-        hashed_root_password=$(openssl passwd -6 "$root_password")
-        sed -i "s#^root:.*#root:$hashed_root_password#" /etc/shadow
-        echo "Root password is now a new random password."
-        echo "New root password: $root_password"
-        echo "--------------------"
-        grep '^root:' /etc/shadow
-        grep '^admin:' /etc/shadow
-        echo "--------------------"
         echo "Port 22 opened in Firewall for all IP addresses."
         /usr/local/vesta/bin/v-unsuspend-firewall-rule "11"
+        echo "--------------------"
+        echo "Type 'passwd' in the terminal to set the root password."
         echo "--------------------"
     fi
 
