@@ -28,7 +28,7 @@ is_package_new() {
 }
 
 is_package_consistent() {
-    source $pkg_dir/$package.pkg
+    parse_object_kv_list_non_eval $(cat $pkg_dir/$package.pkg)
     if [ "$WEB_DOMAINS" != 'unlimited' ]; then
         is_int_format_valid $WEB_DOMAINS 'WEB_DOMAINS'
     fi
@@ -63,6 +63,9 @@ is_package_consistent() {
         is_int_format_valid $BACKUPS 'BACKUPS'
     fi
     is_format_valid_shell $SHELL
+    is_web_template_valid $WEB_TEMPLATE
+    is_dns_template_valid $DNS_TEMPLATE
+    is_proxy_template_valid $PROXY_TEMPLATE
 }
 
 

@@ -16,6 +16,7 @@ force=$3
 
 # Includes
 source $VESTA/func/main.sh
+source $VESTA/func/domain.sh
 source $VESTA/conf/vesta.conf
 
 is_package_avalable() {
@@ -35,7 +36,7 @@ is_package_avalable() {
 
     pkg_data=$(cat $VESTA/data/packages/$package.pkg |grep -v TIME |\
         grep -v DATE)
-    eval $pkg_data
+    parse_object_kv_list_non_eval $pkg_data
 
     # Checking usage agains package limits
     if [ "$WEB_DOMAINS" != 'unlimited' ]; then
@@ -73,6 +74,10 @@ is_package_avalable() {
             check_result $E_LIMIT "Package doesn't cover BANDWIDTH usage"
         fi
     fi
+
+    is_web_template_valid $WEB_TEMPLATE
+    is_dns_template_valid $DNS_TEMPLATE
+    is_proxy_template_valid $PROXY_TEMPLATE
 }
 
 change_user_package() {
