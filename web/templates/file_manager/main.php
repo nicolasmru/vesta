@@ -19,6 +19,7 @@
     <a href="#" class="to-shortcuts">
         <i class="l-icon-shortcuts"></i>
     </a>
+    <div style="float: right; margin-right: 15px;position: fixed;z-index: 100;right: 0px;color: #fff;top: 10px;" title="Developed and donated by VestaCP.com">©</div>
 
     <div id="main">
         <div class="window active">

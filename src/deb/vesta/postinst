@@ -25,6 +25,11 @@ fi
 echo "1" > /usr/local/vesta/data/upgrades/show_changelog
 chmod a=rw /usr/local/vesta/data/upgrades/show_changelog
 
+if ! grep -q "FILEMANAGER_KEY='FREEFM'" /usr/local/vesta/conf/vesta.conf; then
+    echo "== Adding FileManager license to vesta.conf"
+    echo "FILEMANAGER_KEY='FREEFM'" >> /usr/local/vesta/conf/vesta.conf
+fi
+
 # Adding myVesta rules to SpamAssassin
 if [ -d "/etc/spamassassin" ]; then
     spamassassin_modified=0
