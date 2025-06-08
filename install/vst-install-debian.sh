@@ -2089,13 +2089,17 @@ if [ "$release" -gt 9 ]; then
 fi
 echo "ALLOW_BACKUP_ANYTIME='yes'" >> $VESTA/conf/vesta.conf
 echo "NOTIFY_ADMIN_FULL_BACKUP='$email'" >> $VESTA/conf/vesta.conf
+echo "== Adding FileManager license to vesta.conf"
 echo "FILEMANAGER_KEY='FREEFM'" >> $VESTA/conf/vesta.conf
 echo "================================================================"
 
 # Removing old PHP sessions files
 cron=$(crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -)
 
-echo "alias v-cd-www='source /usr/local/vesta/bin/v-change-dir-www'" >> /root/.bash_profile
+if [ -f "/root/.bash_profile" ]; then
+    echo "== Adding v-cd-www alias to root bash profile"
+    echo "alias v-cd-www='source /usr/local/vesta/bin/v-change-dir-www'" >> /root/.bash_profile
+fi
 
 #----------------------------------------------------------#
 #                  myVesta Access Info                     #
