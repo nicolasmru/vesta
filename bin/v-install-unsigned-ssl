@@ -52,7 +52,9 @@ fi
 #                       Action                             #
 #----------------------------------------------------------#
 
-/usr/local/vesta/bin/v-delete-web-domain-ssl "$user" "$domain"
+if [ -f "/home/$user/conf/web/ssl.$domain.crt" ]; then
+    /usr/local/vesta/bin/v-delete-web-domain-ssl "$user" "$domain"
+fi
 
 release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
 
