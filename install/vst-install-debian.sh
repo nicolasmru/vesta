@@ -491,10 +491,16 @@ echo -e "\n\n"
 
 # Asking for confirmation to proceed
 if [ "$interactive" = 'yes' ]; then
-    read -p 'Would you like to continue [y/n]: ' answer
-    if [ "$answer" != 'y' ] && [ "$answer" != 'Y'  ]; then
-        echo 'Goodbye'
-        exit 1
+    prompt_to_continue=1;
+    if [ ! -z "$email" ] && [ ! -z "$secret_url" ] && [ ! -z "$port" ] && [ ! -z "$servername" ]; then
+        prompt_to_continue=0;
+    fi
+    if [ $prompt_to_continue -eq 1 ]; then
+        read -p 'Would you like to continue [y/n]: ' answer
+        if [ "$answer" != 'y' ] && [ "$answer" != 'Y'  ]; then
+            echo 'Goodbye'
+            exit 1
+        fi
     fi
 
     # Asking for contact email
@@ -2081,7 +2087,6 @@ if [ "$port" != "8083" ]; then
     $VESTA/bin/v-change-vesta-port $port
 fi
 
-echo "=== Set URL for phpmyadmin"
 echo "DB_PMA_URL='https://$servername/phpmyadmin/'" >> $VESTA/conf/vesta.conf
 if [ "$release" -gt 9 ]; then
     echo "=== Set max_length_of_MySQL_username=80"
@@ -2089,15 +2094,15 @@ if [ "$release" -gt 9 ]; then
 fi
 echo "ALLOW_BACKUP_ANYTIME='yes'" >> $VESTA/conf/vesta.conf
 echo "NOTIFY_ADMIN_FULL_BACKUP='$email'" >> $VESTA/conf/vesta.conf
-echo "== Adding FileManager license to vesta.conf"
+echo "=== Adding FileManager license to vesta.conf"
 echo "FILEMANAGER_KEY='FREEFM'" >> $VESTA/conf/vesta.conf
-echo "================================================================"
 
 # Removing old PHP sessions files
-cron=$(crontab -l | { cat; echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;"; } | crontab -)
+touch /var/spool/cron/crontabs/root
+echo "10 2 * * 6 sudo find /home/*/tmp/ -type f -mtime +5 -exec rm {} \;" >> /var/spool/cron/crontabs/root
 
 if [ -f "/root/.bash_profile" ]; then
-    echo "== Adding v-cd-www alias to root bash profile"
+    echo "=== Adding v-cd-www alias to root bash profile"
     echo "alias v-cd-www='source /usr/local/vesta/bin/v-change-dir-www'" >> /root/.bash_profile
 fi
 
