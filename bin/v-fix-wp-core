@@ -75,6 +75,7 @@ BACKUP_DIR="$SITE_PATH/backup-core-$TIMESTAMP"
 mkdir -p "$BACKUP_DIR"
 mv "$SITE_PATH/wp-admin"    "$BACKUP_DIR/"
 mv "$SITE_PATH/wp-includes" "$BACKUP_DIR/"
+chown -R www-data:www-data "$BACKUP_DIR"
 check_result $? "backup failed" > /dev/null
 echo "Old core folders moved to $BACKUP_DIR"
 
@@ -85,6 +86,7 @@ check_result $? "rsync failed" > /dev/null
 
 # fix permissions
 v-fix-website-permissions $DOMAIN
+chown -R www-data:www-data "$BACKUP_DIR"
 
 echo "Done, wp-admin and wp-includes replaced for $DOMAIN"
 exit
