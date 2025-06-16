@@ -1,127 +1,74 @@
 #!/bin/bash
-# info: interactively change WordPress admin passwords for a given domain
+# info: disinfect a WordPress site with several maintenance commands
 # options: DOMAIN
 
-# -------------------------------------------------------- #
-#                     variables and checks                 #
-# -------------------------------------------------------- #
+#----------------------------------------------------------#
+#                    Variable & Function                   #
+#----------------------------------------------------------#
 
+DOMAIN="$1"
+VESTA="/usr/local/vesta"
+
+# absolute paths to maintenance scripts
+CHANGE_DB_PASS="/usr/local/vesta/bin/v-change-db-password-to-wordpress"
+FIX_CORE="/usr/local/vesta/bin/v-fix-wp-core"
+WF_SCAN="/usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate"
+ADMIN_PASS="/usr/local/vesta/bin/v-change-wp-admins-pass"
+
+TASKS=(
+    "$CHANGE_DB_PASS"
+    "$FIX_CORE"
+    "$WF_SCAN"
+    "$ADMIN_PASS"
+)
+
+#----------------------------------------------------------#
+#                    Verifications                         #
+#----------------------------------------------------------#
 if [ "$(whoami)" != "root" ]; then
     echo "You must be root to run this command."
     exit 1
 fi
 
-source /etc/profile
-
-domain="$1"
-if [ -z "$domain" ]; then
-    echo "Usage: v-change-wp-admin-pass DOMAIN"
+if [ -z "$DOMAIN" ]; then
+    echo "Usage: v-desinfect-wp DOMAIN"
     exit 1
 fi
 
-user=$(/usr/local/vesta/bin/v-search-domain-owner "$domain")
-if [ -z "$user" ]; then
-    echo "Domain $domain does not exist."
+if ! "$VESTA/bin/v-search-domain-owner" "$DOMAIN" >/dev/null 2>&1; then
+    echo "Domain $DOMAIN does not exist."
     exit 1
 fi
 
-wp_path="/home/$user/web/$domain/public_html"
-if [ ! -f "$wp_path/wp-config.php" ]; then
-    echo "WordPress is not installed on this domain."
-    exit 1
-fi
-
-# ensure WP-CLI exists
-if ! command -v wp >/dev/null 2>&1; then
-    echo "WP-CLI is not installed, installing..."
-    wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
-    chmod +x /usr/local/bin/wp
-fi
-
-# detect PHP for this domain
-phpver=$(/usr/local/vesta/bin/v-get-php-version-of-domain "$domain")
-if command -v "php$phpver" >/dev/null 2>&1; then
-    php_bin=$(command -v "php$phpver")
-else
-    php_bin=$(command -v php)
-fi
-[ -z "$php_bin" ] && { echo "Could not find a PHP binary."; exit 1; }
-
-# WP-CLI wrapper (array keeps spaces intact)
-wp_run=(sudo -u "$user" "$php_bin" /usr/local/bin/wp --skip-plugins --skip-themes)
-
-# random 10-character password generator (letters and digits)
-gen_pass() {
-    tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10
-}
-
-# -------------------------------------------------------- #
-#                          action                          #
-# -------------------------------------------------------- #
-
-cd "$wp_path" || exit 1
+#----------------------------------------------------------#
+#                         Action                           #
+#----------------------------------------------------------#
 
 echo
-echo "WordPress administrators for $domain:"
-echo "-------------------------------------"
+read -r -p "Run all maintenance steps automatically? (y/n) " AUTO < /dev/tty
+[[ "$AUTO" =~ ^[Yy]$ ]] && AUTOMATIC=true || AUTOMATIC=false
 
-admin_list=$("${wp_run[@]}" user list \
-    --role=administrator \
-    --fields=ID,user_login,user_email \
-    --format=csv 2>/dev/null | tail -n +2)
+for CMD in "${TASKS[@]}"; do
+    if [ ! -x "$CMD" ]; then
+        echo "Command $CMD not found or not executable, skipping."
+        continue
+    fi
 
-if [ -z "$admin_list" ]; then
-    echo "No administrator accounts found."
-    exit 0
-fi
+    if [ "$AUTOMATIC" = false ]; then
+        while true; do
+            read -r -p "Run $(basename "$CMD") for $DOMAIN? (y/n) " YN < /dev/tty
+            case "$YN" in
+                [Yy]* ) break ;;
+                [Nn]* ) echo "Skipping $(basename "$CMD")."; continue 2 ;;
+                * )     echo "Please answer y or n." ;;
+            esac
+        done
+    fi
 
-printf "%-6s %-20s %s\n" "ID" "Username" "Email"
-echo "$admin_list" | while IFS=',' read -r id login email; do
-    printf "%-6s %-20s %s\n" "$id" "$login" "$email"
+    echo
+    echo "=== $(basename "$CMD") $DOMAIN ==="
+    "$CMD" "$DOMAIN"
 done
-
-echo
-echo "You will be asked for each admin whether you want to change the password."
-
-# interactive loop
-while IFS=',' read -r id login email; do
-    [ -n "$email" ] && prompt_target="$login <$email>" || prompt_target="$login"
-
-    while true; do
-        read -r -p "Change the password for $prompt_target? (y/n) " yn < /dev/tty
-        case "$yn" in
-            [Yy]* )
-                new_pass=$(gen_pass)
-                if "${wp_run[@]}" user update "$id" --user_pass="$new_pass" --quiet; then
-                    echo "Password for $prompt_target has been changed to: $new_pass"
-                else
-                    echo "Failed to change password for $prompt_target."
-                fi
-                break
-                ;;
-            [Nn]* )
-                echo "Skipping $prompt_target."
-                break
-                ;;
-            * )
-                echo "Please answer y or n."
-                ;;
-        esac
-    done
-done <<< "$admin_list"
-
-# -------------------------------------------------------- #
-#        flush cache and refresh all security salts        #
-# -------------------------------------------------------- #
-
-echo
-echo "Flushing cache and refreshing salts..."
-
-"${wp_run[@]}" cache flush
-"${wp_run[@]}" config shuffle-salts WP_CACHE_KEY_SALT --force
-"${wp_run[@]}" config shuffle-salts
-
-echo "Cache flushed and salts refreshed."
 
 echo
 echo "Done."
