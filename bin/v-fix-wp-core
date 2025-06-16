@@ -35,7 +35,7 @@ TMP_DIR="$(mktemp -d /tmp/wpfix.XXXXXX)"  # temp workspace
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # 1etermine WP version
-WP_VERSION="$(v-run-wp-cli "$DOMAIN" core version | tr -d '[:space:]')"
+WP_VERSION="$(/usr/local/vesta/bin/v-run-wp-cli "$DOMAIN" core version | tr -d '[:space:]')"
 check_result $? "cannot detect WP version" > /dev/null
 if [ -z "$WP_VERSION" ]; then
     check_result 1 "empty WP version string"
@@ -43,7 +43,7 @@ fi
 echo "Detected WordPress version $WP_VERSION"
 
 # 2ind site owner and path
-USER="$(v-search-domain-owner "$DOMAIN")"
+USER="$(/usr/local/vesta/bin/v-search-domain-owner "$DOMAIN")"
 check_result $? "cannot find domain owner" > /dev/null
 SITE_PATH="/home/$USER/web/$DOMAIN/public_html"
 if [ ! -d "$SITE_PATH" ]; then
@@ -98,7 +98,7 @@ for corephp in "$CACHE_PATH"/*.php; do
 done
 
 # fix permissions
-v-fix-website-permissions $DOMAIN
+/usr/local/vesta/bin/v-fix-website-permissions $DOMAIN
 chown -R www-data:www-data "$BACKUP_DIR"
 
 echo "Done, wp-admin and wp-includes replaced for $DOMAIN"
