@@ -1,0 +1,115 @@
+#!/bin/bash
+# info: interactively change WordPress admin passwords for a given domain
+# options: DOMAIN
+
+# -------------------------------------------------------- #
+#                     variables and checks                 #
+# -------------------------------------------------------- #
+
+if [ "$(whoami)" != "root" ]; then
+    echo "You must be root to run this command."
+    exit 1
+fi
+
+source /etc/profile
+
+domain="$1"
+if [ -z "$domain" ]; then
+    echo "Usage: v-change-wp-admin-pass DOMAIN"
+    exit 1
+fi
+
+user=$(/usr/local/vesta/bin/v-search-domain-owner "$domain")
+if [ -z "$user" ]; then
+    echo "Domain $domain does not exist."
+    exit 1
+fi
+
+wp_path="/home/$user/web/$domain/public_html"
+if [ ! -f "$wp_path/wp-config.php" ]; then
+    echo "WordPress is not installed on this domain."
+    exit 1
+fi
+
+# make sure WP-CLI exists
+if ! command -v wp >/dev/null 2>&1; then
+    echo "WP-CLI is not installed, installing..."
+    wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
+    chmod +x /usr/local/bin/wp
+fi
+
+# detect PHP for this domain
+phpver=$(/usr/local/vesta/bin/v-get-php-version-of-domain "$domain")
+if command -v "php$phpver" >/dev/null 2>&1; then
+    php_bin=$(command -v "php$phpver")
+else
+    php_bin=$(command -v php)
+fi
+[ -z "$php_bin" ] && { echo "Could not find a PHP binary."; exit 1; }
+
+# WP-CLI wrapper (array keeps spaces intact)
+wp_run=(sudo -u "$user" "$php_bin" /usr/local/bin/wp --skip-plugins --skip-themes)
+
+# simple random 10-char generator (letters and digits)
+gen_pass() {
+    tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10
+}
+
+# -------------------------------------------------------- #
+#                          action                          #
+# -------------------------------------------------------- #
+
+cd "$wp_path" || exit 1
+
+echo
+echo "WordPress administrators for $domain:"
+echo "-------------------------------------"
+
+admin_list=$("${wp_run[@]}" user list \
+    --role=administrator \
+    --fields=ID,user_login,user_email \
+    --format=csv 2>/dev/null | tail -n +2)
+
+if [ -z "$admin_list" ]; then
+    echo "No administrator accounts found."
+    exit 0
+fi
+
+printf "%-6s %-20s %s\n" "ID" "Username" "Email"
+echo "$admin_list" | while IFS=',' read -r id login email; do
+    printf "%-6s %-20s %s\n" "$id" "$login" "$email"
+done
+
+echo
+echo "You will be asked for each admin whether you want to change the password."
+
+# interactive loop
+while IFS=',' read -r id login email; do
+    [ -n "$email" ] && prompt_target="$login <$email>" || prompt_target="$login"
+
+    while true; do
+        read -r -p "Change the password for $prompt_target? (y/n) " yn < /dev/tty
+        case "$yn" in
+            [Yy]* )
+                new_pass=$(gen_pass)
+                if "${wp_run[@]}" user update "$id" --user_pass="$new_pass" --quiet; then
+                    echo "Password for $prompt_target has been changed to: $new_pass"
+                else
+                    echo "Failed to change password for $prompt_target."
+                fi
+                break
+                ;;
+            [Nn]* )
+                echo "Skipping $prompt_target."
+                break
+                ;;
+            * )
+                echo "Please answer y or n."
+                ;;
+        esac
+    done
+done <<< "$admin_list"
+
+echo
+echo "Done."
+exit 0
