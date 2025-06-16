@@ -31,7 +31,7 @@ if [ ! -f "$wp_path/wp-config.php" ]; then
     exit 1
 fi
 
-# make sure WP-CLI exists
+# ensure WP-CLI exists
 if ! command -v wp >/dev/null 2>&1; then
     echo "WP-CLI is not installed, installing..."
     wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
@@ -50,7 +50,7 @@ fi
 # WP-CLI wrapper (array keeps spaces intact)
 wp_run=(sudo -u "$user" "$php_bin" /usr/local/bin/wp --skip-plugins --skip-themes)
 
-# simple random 10-char generator (letters and digits)
+# random 10-character password generator (letters and digits)
 gen_pass() {
     tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10
 }
@@ -109,6 +109,19 @@ while IFS=',' read -r id login email; do
         esac
     done
 done <<< "$admin_list"
+
+# -------------------------------------------------------- #
+#        flush cache and refresh all security salts        #
+# -------------------------------------------------------- #
+
+echo
+echo "Flushing cache and refreshing salts..."
+
+"${wp_run[@]}" cache flush
+"${wp_run[@]}" config shuffle-salts WP_CACHE_KEY_SALT --force
+"${wp_run[@]}" config shuffle-salts
+
+echo "Cache flushed and salts refreshed."
 
 echo
 echo "Done."
