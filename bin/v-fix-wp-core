@@ -101,5 +101,5 @@ done
 /usr/local/vesta/bin/v-fix-website-permissions $DOMAIN
 chown -R www-data:www-data "$BACKUP_DIR"
 
-echo "Done, wp-admin and wp-includes replaced for $DOMAIN"
+echo "Done, core WP files, wp-admin and wp-includes replaced for $DOMAIN"
 exit
