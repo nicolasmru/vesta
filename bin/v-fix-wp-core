@@ -67,6 +67,7 @@ if [ ! -d "$CACHE_PATH/wp-admin" ] || [ ! -d "$CACHE_PATH/wp-includes" ]; then
 
     mv "$TMP_DIR/wordpress/wp-admin"    "$CACHE_PATH/"
     mv "$TMP_DIR/wordpress/wp-includes" "$CACHE_PATH/"
+    cp "$TMP_DIR/wordpress"/*.php "$CACHE_PATH/"
 fi
 
 # backup current core folders
@@ -75,6 +76,12 @@ BACKUP_DIR="$SITE_PATH/backup-core-$TIMESTAMP"
 mkdir -p "$BACKUP_DIR"
 mv "$SITE_PATH/wp-admin"    "$BACKUP_DIR/"
 mv "$SITE_PATH/wp-includes" "$BACKUP_DIR/"
+
+for f in "$SITE_PATH"/*.php; do
+    [[ $(basename "$f") == "wp-config.php" ]] && continue
+    mv "$f" "$BACKUP_DIR/"
+done
+
 chown -R www-data:www-data "$BACKUP_DIR"
 check_result $? "backup failed" > /dev/null
 echo "Old core folders moved to $BACKUP_DIR"
@@ -83,6 +90,12 @@ echo "Old core folders moved to $BACKUP_DIR"
 rsync -a --delete "$CACHE_PATH/wp-admin/"    "$SITE_PATH/wp-admin/"
 rsync -a --delete "$CACHE_PATH/wp-includes/" "$SITE_PATH/wp-includes/"
 check_result $? "rsync failed" > /dev/null
+
+for corephp in "$CACHE_PATH"/*.php; do
+    base=$(basename "$corephp")
+    [ "$base" = "wp-config.php" ] && continue
+    rsync -a "$corephp" "$SITE_PATH/$base"
+done
 
 # fix permissions
 v-fix-website-permissions $DOMAIN
