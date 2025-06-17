@@ -62,11 +62,8 @@ wpcli="/usr/local/bin/wp"
 
 if [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
     wpcli="/usr/local/bin/wp-cli/php/boot-fs.php"
-fi
-
-if [ ! -d "/home/$user/web/$domain/public_html" ]; then
-    # echo "Domain doesn't exist";
-    exit 1;
+    COLUMNS=$(/usr/bin/env stty size 2>/dev/null | awk '{print $2}')
+    echo $COLUMNS > /usr/local/bin/wp-cli/COLUMNS
 fi
 
 mkdir -p /home/$user/.wp-cli
@@ -81,6 +78,12 @@ phpver=$(/usr/local/vesta/bin/v-get-php-version-of-domain "$domain")
 cd /home/$USER/web/$domain/public_html
 sudo -u $USER /usr/bin/php$phpver -d disable_functions=pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,pcntl_unshare,exec,system,passthru,shell_exec,proc_open,popen -d open_basedir=/home/$user/web/$domain:/home/$user/.wp-cli:/home/$user/tmp:/usr/local/bin $wpcli --path=/home/$user/web/$domain/public_html/ $wp_command 2>/home/$user/web/$domain/wp-cli-error.log
 
+return_code=$?
+
+if [ -f "/usr/local/bin/wp-cli/COLUMNS" ]; then
+    rm /usr/local/bin/wp-cli/COLUMNS
+fi
+
 # echo "WP CLI: Done."
 # echo "To see Warning/Error log: "
 # echo "cat /home/$user/web/$domain/wp-cli-error.log"
@@ -89,4 +92,4 @@ sudo -u $USER /usr/bin/php$phpver -d disable_functions=pcntl_alarm,pcntl_fork,pc
 #                       Vesta                              #
 #----------------------------------------------------------#
 
-exit 0;
+exit $return_code;
