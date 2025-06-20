@@ -65,11 +65,12 @@ echo "For each admin choose: (d) delete, (c) change password, (s) skip."
 echo "$ADMIN_LIST_CSV" | while IFS=',' read -r ID LOGIN EMAIL; do
     [ -n "$EMAIL" ] && TARGET="$LOGIN <$EMAIL>" || TARGET="$LOGIN"
     while true; do
-        read -r -p "Action for $TARGET [d/c/s]? " ACT < /dev/tty
+        echo "-------------------------------------"
+        read -r -p "Action for \"$TARGET\" [d/c/s]? " ACT < /dev/tty
         case "$ACT" in
             [Dd]* )
-                read -r -p "Really DELETE $TARGET? (y/n) " CONF < /dev/tty
-                if [[ "$CONF" =~ ^[Yy]$ ]]; then
+                read -r -p "Really DELETE \"$TARGET\" ?   ('y' or ENTER for yes / 'n' for no) " CONF < /dev/tty
+                if [[ ! "$CONF" =~ ^[Nn]$ ]]; then
                     # build an array of OTHER admin usernames
                     mapfile -t OTHER_USERS < <(echo "$ADMIN_LIST_CSV" | awk -F',' -v cur="$ID" '$1!=cur {print $2}')
                     if [ "${#OTHER_USERS[@]}" -eq 0 ]; then
