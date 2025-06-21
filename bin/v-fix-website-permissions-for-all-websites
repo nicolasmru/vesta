@@ -1,8 +1,8 @@
 #!/bin/bash
-# info: change db password to all wordpress databases
+# info: fix website permissions for all websites
 # options:
 #
-# The command is used for changing db password to all wordpress databases on the server.
+# The command is used for fixing website permissions for all websites on the server.
 
 
 #----------------------------------------------------------#
@@ -25,10 +25,8 @@ for user in $(grep '@' /etc/passwd |cut -f1 -d:); do
     fi
 
     for domain in $(/usr/local/vesta/bin/v-list-web-domains $user plain |cut -f 1); do
-        if [ -f "/home/$user/web/$domain/public_html/wp-config.php" ]; then
-            /usr/local/vesta/bin/v-change-db-password-to-wordpress $domain
-            echo "--------------------------------"
-        fi
+        /usr/local/vesta/bin/v-fix-website-permissions $domain $user
+        echo "--------------------------------"
     done
 
 done

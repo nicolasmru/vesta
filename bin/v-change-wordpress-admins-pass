@@ -59,14 +59,14 @@ echo "$ADMIN_LIST_CSV" | while IFS=',' read -r PID PLOGIN PEMAIL; do
 done
 
 echo
-echo "For each admin choose: (d) delete, (c) change password, (s) skip."
+echo "For each admin choose: (d) delete, (c) change password, (s) skip, (x) exit."
 
 # interactive loop
-echo "$ADMIN_LIST_CSV" | while IFS=',' read -r ID LOGIN EMAIL; do
+while IFS=',' read -r ID LOGIN EMAIL; do
     [ -n "$EMAIL" ] && TARGET="$LOGIN <$EMAIL>" || TARGET="$LOGIN"
     while true; do
         echo "-------------------------------------"
-        read -r -p "Action for \"$TARGET\" [d/c/s]? " ACT < /dev/tty
+        read -r -p "Action for \"$TARGET\" [d/c/s/x]? " ACT < /dev/tty
         case "$ACT" in
             [Dd]* )
                 read -r -p "Really DELETE \"$TARGET\" ?   ('y' or ENTER for yes / 'n' for no) " CONF < /dev/tty
@@ -109,15 +109,20 @@ echo "$ADMIN_LIST_CSV" | while IFS=',' read -r ID LOGIN EMAIL; do
                 echo "Skipping $TARGET."
                 break
                 ;;
-            * ) echo "Please answer d, c, or s." ;;
+            [Xx]* )
+                echo "Exiting."
+                exit 0
+                ;;
+            * ) echo "Please answer d, c, s, or x." ;;
         esac
     done
-done
+done <<< "$ADMIN_LIST_CSV"
 
 #----------------------------------------------------------#
 #        flush cache and refresh all security salts        #
 #----------------------------------------------------------#
 
+echo "-------------------------------------"
 echo
 echo "Flushing cache and refreshing salts..."
 
@@ -129,4 +134,5 @@ echo "Cache flushed and salts refreshed."
 
 echo
 echo "Done."
+
 exit 0

@@ -27,24 +27,14 @@ if [ -z "$user" ]; then
     exit 1
 fi
 
-# choose the correct admin-password script (with or without the “s”)
-if [ -x /usr/local/vesta/bin/v-change-wp-admin-pass ]; then
-    admin_pass_script="/usr/local/vesta/bin/v-change-wp-admin-pass"
-elif [ -x /usr/local/vesta/bin/v-change-wp-admins-pass ]; then
-    admin_pass_script="/usr/local/vesta/bin/v-change-wp-admins-pass"
-else
-    admin_pass_script=""
-fi
-
 # absolute paths to maintenance scripts, in desired order
 declare -a tasks=(
-    "/usr/local/vesta/bin/v-change-db-password-to-wordpress"
-    "/usr/local/vesta/bin/v-fix-wp-core"
+    "/usr/local/vesta/bin/v-change-database-password-for-wordpress"
+    "/usr/local/vesta/bin/v-change-wordpress-admins-pass"
+    "/usr/local/vesta/bin/v-fix-wordpress-core"
     "/usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate"
+    "INTERACTIVE=1 /usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate"
 )
-
-# append the admin script if we found one
-[ -n "$admin_pass_script" ] && tasks+=("$admin_pass_script")
 
 # -------------------------------------------------------- #
 #                    execution strategy                    #

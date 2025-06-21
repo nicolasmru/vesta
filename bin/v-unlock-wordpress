@@ -58,6 +58,8 @@ chown -R $user:$user public_html/
 
 rm public_html/wp-content/uploads/.htaccess
 
+/usr/local/vesta/bin/v-fix-website-permissions $domain
+
 #----------------------------------------------------------#
 #                       Vesta                              #
 #----------------------------------------------------------#

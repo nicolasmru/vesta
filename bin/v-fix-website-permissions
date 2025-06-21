@@ -18,7 +18,13 @@ source /etc/profile
 # Argument definition
 domain=$1
 
-user=$(/usr/local/vesta/bin/v-search-domain-owner $domain)
+# Check if number of arguments is 2
+if [ $# -eq 2 ]; then
+    user=$2
+else
+    user=$(/usr/local/vesta/bin/v-search-domain-owner $domain)
+fi
+USER=$user
 
 # Includes
 source /usr/local/vesta/func/main.sh
@@ -26,8 +32,6 @@ source /usr/local/vesta/func/main.sh
 if [ -z "$user" ]; then
     check_result $E_NOTEXIST "domain $domain doesn't exist"
 fi
-
-USER=$user
 
 #----------------------------------------------------------#
 #                    Verifications                         #
@@ -54,14 +58,28 @@ fi
 # Going to domain directory
 cd /home/$USER/web/$domain
 
+# Ownership check
+if [ -f "public_html/index.php" ]; then
+    owner=$(stat -c '%U' "public_html/index.php")
+    if [ "$owner" = "root" ] || [ "$owner" = "www-data" ]; then
+        echo "Skipping permission fix for $domain, because v-lock-wordpress is used (index.php is owned by $owner)"
+        exit 1
+    fi
+fi
+
+
 echo "Updating permissions for /home/$USER/web/$domain/public_html/"
 find public_html/ -type d -exec chmod 755 {} +
 find public_html/ -type f -exec chmod 644 {} +
 chown -R $USER:$USER public_html/
+
+# Setting chmod 600 for all php files
+echo "= Setting chmod 600 for all php files"
+find -name "*.php" -type f -exec chmod 600 {} +
 
 #----------------------------------------------------------#
 #                       Vesta                              #
 #----------------------------------------------------------#
 echo "Permissions for $domain have been successfully updated."
 
-exit
+exit 0
