@@ -84,7 +84,7 @@ for f in "$SITE_PATH"/*.php; do
     mv "$f" "$BACKUP_DIR/"
 done
 
-chown -R www-data:www-data "$BACKUP_DIR"
+# chown -R www-data:www-data "$BACKUP_DIR"
 check_result $? "backup failed" > /dev/null
 echo "Old core folders moved to $BACKUP_DIR"
 
@@ -100,8 +100,8 @@ for corephp in "$CACHE_PATH"/*.php; do
 done
 
 # fix permissions
-/usr/local/vesta/bin/v-fix-website-permissions $DOMAIN
-chown -R www-data:www-data "$BACKUP_DIR"
+SKIP_OWNERSHIP_CHECK=1 /usr/local/vesta/bin/v-fix-website-permissions $DOMAIN
+# chown -R www-data:www-data "$BACKUP_DIR"
 
 echo "Done, core WP files, wp-admin and wp-includes replaced for $DOMAIN"
 exit

@@ -59,7 +59,7 @@ fi
 cd /home/$USER/web/$domain
 
 # Ownership check
-if [ -f "public_html/index.php" ]; then
+if [ -z "$SKIP_OWNERSHIP_CHECK" ] && [ -f "public_html/index.php" ]; then
     owner=$(stat -c '%U' "public_html/index.php")
     if [ "$owner" = "root" ] || [ "$owner" = "www-data" ]; then
         echo "Skipping permission fix for $domain, because v-lock-wordpress is used (index.php is owned by $owner)"
