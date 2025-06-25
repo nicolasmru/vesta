@@ -83,6 +83,9 @@ for f in "$SITE_PATH"/*.php; do
     [[ $(basename "$f") == "wp-config.php" ]] && continue
     mv "$f" "$BACKUP_DIR/"
 done
+if [ -f "$SITE_PATH/.user.ini" ]; then
+    mv "$SITE_PATH/.user.ini" "$BACKUP_DIR/"
+fi
 
 # chown -R www-data:www-data "$BACKUP_DIR"
 check_result $? "backup failed" > /dev/null
