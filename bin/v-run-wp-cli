@@ -69,7 +69,11 @@ fi
 mkdir -p /home/$user/.wp-cli
 chown $user:$user /home/$user/.wp-cli
 
-phpver=$(/usr/local/vesta/bin/v-get-php-version-of-domain "$domain")
+if [ -z "$PHP" ]; then
+    phpver=$(/usr/local/vesta/bin/v-get-php-version-of-domain "$domain")
+else
+    phpver=$PHP
+fi
 
 #----------------------------------------------------------#
 #                       Action                             #
