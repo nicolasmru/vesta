@@ -36,10 +36,13 @@ fi
 #                    Verifications                         #
 #----------------------------------------------------------#
 
+VERBOSE_MODE=1
+
 check_args '2' "$#" 'DOMAIN WP_CLI_COMMAND'
 is_format_valid 'domain'
 is_object_valid 'user' 'USER' "$user"
 is_object_unsuspended 'user' 'USER' "$user"
+is_object_unsuspended 'web' 'DOMAIN' "$domain"
 
 if [ ! -d "/home/$user" ]; then
     # echo "User doesn't exist";

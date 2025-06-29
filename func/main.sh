@@ -254,6 +254,9 @@ is_object_unsuspended() {
         spnd=$(grep "$2='$3'" $USER_DATA/$1.conf |grep "SUSPENDED='yes'")
     fi
     if [ ! -z "$spnd" ]; then
+        if [ ! -z "$VERBOSE_MODE" ]; then
+            echo "Error: $(basename $1) $3 is suspended"
+        fi
         check_result $E_SUSPENDED "$(basename $1) $3 is suspended"
     fi
 }
