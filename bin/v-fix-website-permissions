@@ -77,6 +77,8 @@ chown -R $USER:$USER public_html/
 echo "= Setting chmod 600 for all php files"
 find -name "*.php" -type f -exec chmod 600 {} +
 find -name ".env" -type f -exec chmod 600 {} +
+find -name "*.php" -type f -exec chown $USER:$USER {} +
+find -name ".env" -type f -exec chown $USER:$USER {} +
 
 #----------------------------------------------------------#
 #                       Vesta                              #
