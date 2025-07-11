@@ -57,8 +57,17 @@ if [ -z "$database" ]; then
     fi
 fi
 
+# Convert domain to IDN if available
+if command -v idn2 >/dev/null 2>&1; then
+    database=$(idn2 "$database")
+    idn_domain=$(idn2 "$domain")
+elif command -v idn >/dev/null 2>&1; then
+    database=$(idn "$database")
+    idn_domain=$(idn "$domain")
+fi
+
 if [ -z "$email" ]; then
-    email="info@$domain";
+    email="info@$idn_domain";
 fi
 
 if [ ! -d "/home/$user" ]; then
