@@ -1236,3 +1236,26 @@ parse_object_kv_list_non_eval() {
         fi
     done
 }
+
+# Return OK (0) if domain is unsupended
+# Parameters:
+# $1 - user
+# $2 - domain
+return_ok_if_domain_is_unsuspended() {
+    spnd=$(grep "DOMAIN='$2'" /usr/local/vesta/data/users/$1/web.conf | grep "SUSPENDED='yes'")
+    if [ ! -z "$spnd" ]; then
+        return $E_SUSPENDED
+    fi
+    return $OK
+}
+
+# Return OK (0) if user is unsupended
+# Parameters:
+# $1 - user
+return_ok_if_user_is_unsuspended() {
+    spnd=$(cat /usr/local/vesta/data/users/$1/user.conf | grep "SUSPENDED='yes'")
+    if [ ! -z "$spnd" ]; then
+        return $E_SUSPENDED
+    fi
+    return $OK
+}
