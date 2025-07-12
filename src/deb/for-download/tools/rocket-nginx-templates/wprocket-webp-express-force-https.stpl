@@ -43,7 +43,7 @@ server {
     
     # Allow PHP access to WebP Express WOD handler
     location ~ ^/wp-content/plugins/webp-express/wod/.*\.php$ {
-        proxy_pass      https://148.113.209.199:8443;
+        proxy_pass      https://%ip%:%web_ssl_port%;
     }
     
     location / {
