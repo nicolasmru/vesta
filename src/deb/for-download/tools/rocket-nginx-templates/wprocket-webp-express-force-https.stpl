@@ -7,8 +7,6 @@ server {
     error_log  /var/log/%web_system%/domains/%domain%.error.log error;
 
     root           %sdocroot%;
-    # Rocket-Nginx configuration
-    include rocket-nginx/conf.d/default.conf;
 
     # Serve WebP if browser supports it
     location ~* ^/wp-content/.*\.(png|jpe?g)$ {
@@ -45,7 +43,10 @@ server {
     location ~ ^/wp-content/plugins/webp-express/wod/.*\.php$ {
         proxy_pass      https://%ip%:%web_ssl_port%;
     }
-    
+
+    # Rocket-Nginx configuration
+    include rocket-nginx/conf.d/default.conf;
+
     location / {
         proxy_pass      https://%ip%:%web_ssl_port%;
     }
