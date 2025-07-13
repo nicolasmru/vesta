@@ -4,6 +4,8 @@ wget -nv -O /usr/local/vesta/data/templates/web/nginx/wprocket-force-https.tpl h
 wget -nv -O /usr/local/vesta/data/templates/web/nginx/wprocket-force-https.stpl https://c.myvestacp.com/tools/rocket-nginx-templates/wprocket-force-https.stpl
 wget -nv -O /usr/local/vesta/data/templates/web/nginx/wprocket-hosting.tpl https://c.myvestacp.com/tools/rocket-nginx-templates/wprocket-hosting.tpl
 wget -nv -O /usr/local/vesta/data/templates/web/nginx/wprocket-hosting.stpl https://c.myvestacp.com/tools/rocket-nginx-templates/wprocket-hosting.stpl
+wget -nv -O /usr/local/vesta/data/templates/web/nginx/wprocket-webp-express-force-https.tpl https://c.myvestacp.com/tools/rocket-nginx-templates/wprocket-webp-express-force-https.tpl
+wget -nv -O /usr/local/vesta/data/templates/web/nginx/wprocket-webp-express-force-https.stpl https://c.myvestacp.com/tools/rocket-nginx-templates/wprocket-webp-express-force-https.stpl
 
 echo "Updating apt, please wait..."
 apt-get update > /dev/null 2>&1
