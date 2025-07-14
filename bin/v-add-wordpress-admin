@@ -12,6 +12,11 @@ if [ "$whoami" != "root" ]; then
     exit 1
 fi
 
+if [ "$#" -lt 4 ]; then
+    echo "Usage: v-add-wordpress-admin [DOMAIN] [USERNAME] [PASSWORD] [EMAIL]"
+    exit 1
+fi
+
 # Importing system environment
 source /etc/profile
 
