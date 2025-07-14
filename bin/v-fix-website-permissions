@@ -73,10 +73,15 @@ find public_html/ -type d -exec chmod 755 {} +
 find public_html/ -type f -exec chmod 644 {} +
 chown -R $USER:$USER public_html/
 
+php_chmod="600"
+if [ -f "/home/$USER/web/$domain/php_chmod" ]; then
+    php_chmod=$(cat /home/$USER/web/$domain/php_chmod)
+fi
+
 # Setting chmod 600 for all php files
 echo "= Setting chmod 600 for all php files"
-find -name "*.php" -type f -exec chmod 600 {} +
-find -name ".env" -type f -exec chmod 600 {} +
+find -name "*.php" -type f -exec chmod $php_chmod {} +
+find -name ".env" -type f -exec chmod $php_chmod {} +
 find -name "*.php" -type f -exec chown $USER:$USER {} +
 find -name ".env" -type f -exec chown $USER:$USER {} +
 
