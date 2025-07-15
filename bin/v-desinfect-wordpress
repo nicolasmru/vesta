@@ -33,6 +33,7 @@ declare -a tasks=(
     "/usr/local/vesta/bin/v-change-wordpress-admin-passwords"
     "/usr/local/vesta/bin/v-fix-wordpress-core"
     "/usr/local/vesta/bin/v-delete-inactive-wordpress-plugins-and-themes"
+    "/usr/local/vesta/bin/v-delete-wordpress-uploads-php-files"
     "/usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate"
     "INTERACTIVE=1 /usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate"
 )
