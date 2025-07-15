@@ -69,9 +69,9 @@ fi
 
 
 echo "Updating permissions for /home/$USER/web/$domain/public_html/"
-find public_html/ -type d -exec chmod 755 {} +
-find public_html/ -type f -exec chmod 644 {} +
-chown -R $USER:$USER public_html/
+find public_html/ -type d ! -perm 755 -exec chmod 755 {} +
+find public_html/ -type f ! -perm 644 -exec chmod 644 {} +
+find public_html/ ! -user $USER -exec chown $USER:$USER {} +
 
 php_chmod="600"
 if [ -f "/home/$USER/web/$domain/php_chmod" ]; then
@@ -79,11 +79,11 @@ if [ -f "/home/$USER/web/$domain/php_chmod" ]; then
 fi
 
 # Setting chmod 600 for all php files
-echo "= Setting chmod 600 for all php files"
-find -name "*.php" -type f -exec chmod $php_chmod {} +
-find -name ".env" -type f -exec chmod $php_chmod {} +
-find -name "*.php" -type f -exec chown $USER:$USER {} +
-find -name ".env" -type f -exec chown $USER:$USER {} +
+echo "= Setting chmod $php_chmod for all php files"
+find -name "*.php" -type f ! -perm $php_chmod -exec chmod $php_chmod {} +
+find -name ".env" -type f ! -perm $php_chmod -exec chmod $php_chmod {} +
+find -name "*.php" -type f ! -user $USER -exec chown $USER:$USER {} +
+find -name ".env" -type f ! -user $USER -exec chown $USER:$USER {} +
 
 #----------------------------------------------------------#
 #                       Vesta                              #
