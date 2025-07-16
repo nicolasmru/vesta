@@ -38,26 +38,20 @@ echo "-------------------------------------"
 echo "$files"
 echo "-------------------------------------"
 
-while true; do
-    read -r -p "Do you want to delete these files? (y/n): " RESPONSE < /dev/tty
-    if [ "$RESPONSE" == "y" ] || [ "$RESPONSE" == "Y" ]; then
-        for file in $files; do
-            source_file="/home/$USER/web/$DOMAIN/public_html/$file"
-            destination_file="/srv/wp-uploads-php-files-quarantine/$DOMAIN/$file"
-            destination_folder=$(dirname "$destination_file")
-            mkdir -p "$destination_folder"
-            chown $USER:$USER "$destination_folder"
-            mv "$source_file" "$destination_file"
-            echo "= File $source_file moved to $destination_file"
-            quarantined=1;
-        done
-        chown -R $USER:$USER "/srv/wp-uploads-php-files-quarantine/$DOMAIN"
-        break;
-    fi
-    if [ "$RESPONSE" == "n" ] || [ "$RESPONSE" == "N" ]; then
-        break;
-    fi
-done
+read -r -p "Do you want to move these files to quarantine? (y/n, default: y): " RESPONSE < /dev/tty
+if [ "$RESPONSE" == "y" ] || [ "$RESPONSE" == "Y" ] || [ -z "$RESPONSE" ]; then
+    for file in $files; do
+        source_file="/home/$USER/web/$DOMAIN/public_html/$file"
+        destination_file="/srv/wp-uploads-php-files-quarantine/$DOMAIN/$file"
+        destination_folder=$(dirname "$destination_file")
+        mkdir -p "$destination_folder"
+        chown $USER:$USER "$destination_folder"
+        mv "$source_file" "$destination_file"
+        echo "= File $source_file moved to $destination_file"
+        quarantined=1;
+    done
+    chown -R $USER:$USER "/srv/wp-uploads-php-files-quarantine/$DOMAIN"
+fi
 
 echo ""
 if [ $quarantined -eq 1 ]; then
