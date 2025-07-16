@@ -37,7 +37,12 @@ TMP_DIR="$(mktemp -d /tmp/wpfix.XXXXXX)"  # temp workspace
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # 1etermine WP version
-WP_VERSION="$(/usr/local/vesta/bin/v-run-wp-cli "$DOMAIN" core version | tr -d '[:space:]')"
+if [ -z "$PHP" ]; then
+    WP_VERSION="$(/usr/local/vesta/bin/v-run-wp-cli "$DOMAIN" core version | tr -d '[:space:]')"
+else
+    WP_VERSION="$(PHP=$PHP /usr/local/vesta/bin/v-run-wp-cli "$DOMAIN" core version | tr -d '[:space:]')"
+fi
+
 check_result $? "cannot detect WP version" > /dev/null
 if [ -z "$WP_VERSION" ]; then
     check_result 1 "empty WP version string"
