@@ -69,20 +69,24 @@ fi
 
 
 echo "Updating permissions for /home/$USER/web/$domain/public_html/"
-find public_html/ -type d ! \( -name "*.php" -o -name "*.env" \) ! -perm 755 -exec chmod 755 {} +
+# Fixing permissions
+find public_html/ -type d ! -perm 755 -exec chmod 755 {} +
 find public_html/ -type f ! \( -name "*.php" -o -name "*.env" \) ! -perm 644 -exec chmod 644 {} +
-find public_html/ ! -user $USER -exec chown $USER:$USER {} +
+# Fixing ownership
+find public_html/ -type d ! -user $USER -exec chown $USER:$USER {} +
+find public_html/ -type f ! \( -name "*.php" -o -name "*.env" \) ! -user $USER -exec chown $USER:$USER {} +
 
 php_chmod="600"
 if [ -f "/home/$USER/web/$domain/php_chmod" ]; then
     php_chmod=$(cat /home/$USER/web/$domain/php_chmod)
 fi
 
-# Setting chmod 600 for all php files
-echo "= Setting chmod $php_chmod for all php files"
+# Setting chmod 600 for all .php and .env files
+echo "= Setting chmod $php_chmod for all .php and .env files"
+# Fixing permissions
 find -type f \( -name "*.php" -o -name "*.env" \) ! -perm $php_chmod -exec chmod $php_chmod {} +
-find -name "*.php" -type f ! -user $USER -exec chown $USER:$USER {} +
-find -name ".env" -type f ! -user $USER -exec chown $USER:$USER {} +
+# Fixing ownership
+find -type f \( -name "*.php" -o -name "*.env" \) ! -user $USER -exec chown $USER:$USER {} +
 
 #----------------------------------------------------------#
 #                       Vesta                              #
