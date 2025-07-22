@@ -62,7 +62,7 @@ NGINX_V='1.29.0'
 OPENSSL_V='1.1.1w'
 PCRE_V='8.45'
 ZLIB_V='1.3.1'
-PHP_V='5.6.40'
+PHP_V='8.4.10'
 
 # Generate Links for sourcecode
 NGINX='https://nginx.org/download/nginx-'$NGINX_V'.tar.gz'
@@ -73,7 +73,7 @@ OPENSSL='https://www.openssl.org/source/openssl-'$OPENSSL_V'.tar.gz'
 PCRE='https://sourceforge.net/projects/pcre/files/pcre/'$PCRE_V'/pcre-'$PCRE_V'.tar.gz/download'
 # Zlib moved archives to Github
 ZLIB='https://github.com/madler/zlib/archive/refs/tags/v'$ZLIB_V'.tar.gz'
-PHP='http://de2.php.net/distributions/php-'$PHP_V'.tar.gz'
+PHP='https://www.php.net/distributions/php-'$PHP_V'.tar.gz'
 
 # Set package dependencies for compiling
 release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
@@ -81,7 +81,7 @@ release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
 if [ "$release" -lt 12 ]; then
     SOFTWARE='build-essential libxml2-dev libz-dev libcurl4-gnutls-dev unzip openssl libssl-dev pkg-config reprepro dpkg-sig git rsync'
 else
-    SOFTWARE='build-essential libxml2-dev libz-dev libcurl4-gnutls-dev unzip openssl libssl-dev pkg-config reprepro git rsync'
+    SOFTWARE='build-essential libxml2-dev libz-dev libcurl4-gnutls-dev unzip openssl libssl-dev pkg-config reprepro git rsync libsqlite3-dev libonig-dev'
 fi
 
 function press_enter {
@@ -130,7 +130,7 @@ if [ $run_apt_update_and_install -eq 1 ]; then
   if [ ! -e /usr/local/include/curl ] && [ "$release" -lt 12 ]; then
       ln -s /usr/include/x86_64-linux-gnu/curl /usr/local/include/curl
   fi
-  if [ "$release" -eq 13 ]; then
+  if [ ! -e /usr/local/include/curl ] && [ "$release" -eq 13 ]; then
       ln -s /usr/include/x86_64-linux-gnu/curl /usr/local/include/curl
   fi
   press_enter "=== Press enter to continue ==============================================================================="
@@ -530,7 +530,7 @@ if [ "$NGINX_B" = true ]; then
               --with-openssl-opt=no-weak-ssl-ciphers \
               --with-openssl-opt=no-ssl3 \
               --with-pcre=../pcre-$PCRE_V \
-                  --with-pcre-jit \
+              --with-pcre-jit \
               --with-zlib=../zlib-$ZLIB_V
       
       # Check install directory and remove if exists
@@ -625,11 +625,10 @@ if [ "$PHP_B" = true ]; then
                   --with-zlib \
                   --with-fpm-user=admin \
                   --with-fpm-group=admin \
-                  --with-mysql \
                   --with-mysqli \
                   --with-curl \
                   --enable-mbstring \
-				  --with-mysql-sock=/var/run/mysqld/mysqld.sock
+                  --with-mysql-sock=/var/run/mysqld/mysqld.sock
       
       # Check install directory and remove if exists
       if [ -d $INSTALL_DIR/php ]; then
@@ -637,7 +636,7 @@ if [ "$PHP_B" = true ]; then
       fi
     
       press_enter "=== Press enter to compile PHP ==============================================================================="
-      
+
       make && make install
       
       press_enter "=== Press enter to continue ==============================================================================="
