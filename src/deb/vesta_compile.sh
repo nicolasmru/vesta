@@ -7,8 +7,8 @@
 build_deb_package=1
 add_deb_to_apt_repo=0
 
-TARGET_DEB_NAME='bookworm'
-TARGET_DEB_VER='12'
+TARGET_DEB_NAME='trixie'
+TARGET_DEB_VER='13'
 
 run_apt_update_and_install=1
 wait_to_press_enter=1
@@ -31,8 +31,8 @@ fi
 
 MAINTAINER_EMAIL='info@myvestacp.com'
 
-TARGET_DEB_NAME_MAIN='bookworm'
-TARGET_DEB_VER_MAIN='12'
+TARGET_DEB_NAME_MAIN='trixie'
+TARGET_DEB_VER_MAIN='13'
 
 # Set compiling directory
 BUILD_DIR="/usr/src/$TARGET_DEB_NAME"
@@ -58,10 +58,10 @@ BUILD_DATE=$(date +"%d-%b-%Y")
 
 # Set Version for compiling
 VESTA_V=$VESTA_VER"_amd64"
-NGINX_V='1.25.1'
-OPENSSL_V='1.1.1u'
+NGINX_V='1.29.0'
+OPENSSL_V='1.1.1w'
 PCRE_V='8.45'
-ZLIB_V='1.2.13'
+ZLIB_V='1.3.1'
 PHP_V='5.6.40'
 
 # Generate Links for sourcecode
@@ -128,6 +128,9 @@ if [ $run_apt_update_and_install -eq 1 ]; then
   
   # Fix for Debian PHP Envroiment
   if [ ! -e /usr/local/include/curl ] && [ "$release" -lt 12 ]; then
+      ln -s /usr/include/x86_64-linux-gnu/curl /usr/local/include/curl
+  fi
+  if [ "$release" -eq 13 ]; then
       ln -s /usr/include/x86_64-linux-gnu/curl /usr/local/include/curl
   fi
   press_enter "=== Press enter to continue ==============================================================================="
@@ -258,6 +261,7 @@ EOF
     press_enter "*** please copy above generated key to your clipboard and then paste it after pressing enter now ***"
     vi $PATH_OF_APT_REPO_ROOT/deb_signing.key
     cp $PATH_OF_APT_REPO_ROOT/deb_signing.key $PATH_OF_C_WEB_FOLDER_ROOT/deb_signing.key
+    cp $PATH_OF_APT_REPO_ROOT/deb_signing.key $PATH_OF_C_WEB_FOLDER_ROOT/debian/13/deb_signing.key
     cp $PATH_OF_APT_REPO_ROOT/deb_signing.key $PATH_OF_C_WEB_FOLDER_ROOT/debian/12/deb_signing.key
     cp $PATH_OF_APT_REPO_ROOT/deb_signing.key $PATH_OF_C_WEB_FOLDER_ROOT/debian/11/deb_signing.key
     cp $PATH_OF_APT_REPO_ROOT/deb_signing.key $PATH_OF_C_WEB_FOLDER_ROOT/debian/10/deb_signing.key
@@ -421,6 +425,34 @@ if [ "$CWEB_B" = true ]; then
   echo "=== All done for Debian11"
   ##########
   cd $PATH_OF_C_WEB_FOLDER_ROOT/debian/12
+  
+  if [ -f "packages.tar.gz" ]; then
+    rm packages.tar.gz
+  fi
+  tar -czf packages.tar.gz packages/
+  
+  if [ -f "templates.tar.gz" ]; then
+    rm templates.tar.gz
+  fi
+  tar -czf templates.tar.gz templates/
+  
+  if [ -f "firewall.tar.gz" ]; then
+    rm firewall.tar.gz
+  fi
+  tar -czf firewall.tar.gz firewall/
+  
+  if [ -f "fail2ban.tar.gz" ]; then
+    rm fail2ban.tar.gz
+  fi
+  tar -czf fail2ban.tar.gz fail2ban/
+  
+  if [ -f "dovecot.tar.gz" ]; then
+    rm dovecot.tar.gz
+  fi
+  tar -czf dovecot.tar.gz dovecot/
+  echo "=== All done for Debian12"
+  ##########
+  cd $PATH_OF_C_WEB_FOLDER_ROOT/debian/13
   
   if [ -f "packages.tar.gz" ]; then
     rm packages.tar.gz
