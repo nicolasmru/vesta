@@ -32,11 +32,24 @@ is_object_suspended '../../data/firewall/rules' 'RULE' "$rule"
 #                       Action                             #
 #----------------------------------------------------------#
 
+oldvalues=$(grep "RULE='$rule'" $VESTA/data/firewall/rules.conf)
+
 # Suspending rule
 update_object_value ../../data/firewall/rules RULE $rule '$SUSPENDED' no
 
 # Updating system firewall
 $BIN/v-update-firewall
+
+if [ "$WEB_SYSTEM" == 'nginx' ] || [ "$PROXY_SYSTEM" == 'nginx' ]; then
+    parse_object_kv_list_non_eval "$oldvalues"
+    if [ "$PORT" == "80,443" ] && [ "$ACTION" == "DROP" ]; then
+        touch /etc/nginx/conf.d/block-firewall.conf
+        if ! grep -q "deny $IP;" /etc/nginx/conf.d/block-firewall.conf; then
+            echo "deny $IP;" >> /etc/nginx/conf.d/block-firewall.conf
+            systemctl restart nginx
+        fi
+    fi
+fi
 
 
 #----------------------------------------------------------#
