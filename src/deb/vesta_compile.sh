@@ -478,7 +478,7 @@ if [ "$CWEB_B" = true ]; then
     rm dovecot.tar.gz
   fi
   tar -czf dovecot.tar.gz dovecot/
-  echo "=== All done for Debian12"
+  echo "=== All done for Debian13"
   ##########
   
   cp /root/vesta/install/vst-install-debian.sh $PATH_OF_C_WEB_FOLDER_ROOT/vst-install-debian.sh
