@@ -42,12 +42,12 @@ is_format_valid 'domain'
 is_object_valid 'user' 'USER' "$user"
 
 if [ ! -d "/home/$user" ]; then
-    echo "User doesn't exist";
+    echo "Error: Folder /home/$user doesn't exist";
     exit 1;
 fi
 
 if [ ! -d "/home/$user/web/$domain/public_html" ]; then
-    echo "Domain doesn't exist";
+    echo "Error: Folder /home/$user/web/$domain/public_html doesn't exist";
     exit 1;
 fi
 
