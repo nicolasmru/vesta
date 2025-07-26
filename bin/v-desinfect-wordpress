@@ -27,6 +27,11 @@ if [ -z "$user" ]; then
     exit 1
 fi
 
+if [ ! -f "/usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate" ]; then
+    echo "= WordFence CLI is not installed. Installing..."
+    /usr/local/vesta/bin/v-install-wordfence-cli
+fi
+
 # absolute paths to maintenance scripts, in desired order
 declare -a tasks=(
     "/usr/local/vesta/bin/v-change-database-password-for-wordpress"
