@@ -45,28 +45,37 @@ is_object_unsuspended 'user' 'USER' "$user"
 is_object_unsuspended 'web' 'DOMAIN' "$domain"
 
 if [ ! -d "/home/$user" ]; then
-    # echo "User doesn't exist";
+    echo "= User doesn't exist";
     exit 1;
 fi
 
-if [ ! -f "/home/$user/web/$domain/public_html/wp-config.php" ]; then
-    echo 'Please install WordPress first.'
+if [[ "$wp_command" != core\ download* ]] && [[ "$wp_command" != core\ config* ]] && [ ! -f "/home/$user/web/$domain/public_html/wp-config.php" ]; then
+    echo '= Please install WordPress first.'
     exit 1;
 fi
 
-if ! command -v wp &> /dev/null; then
-    echo "WP CLI is not installed. Installing..."
-    wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
-    chmod +x /usr/local/bin/wp
-    echo "WP CLI installed successfully."
+wpcli=""
+
+if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+    echo "= WP CLI is not installed. Installing..."
+    /usr/local/vesta/bin/v-install-wp-cli
 fi
 
-wpcli="/usr/local/bin/wp"
+if [ -f "/usr/local/bin/wp" ]; then
+    wpcli="/usr/local/bin/wp"
+    WP_CLI_PACKAGES_DIR=""
+fi
 
-if [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+if [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ] && [ -d "/usr/local/bin/wp-cli/packages/vendor/wp-cli/search-replace-command" ] && [ -z "$USE_WP_CLI_BUNDLED" ]; then
     wpcli="/usr/local/bin/wp-cli/php/boot-fs.php"
     COLUMNS=$(/usr/bin/env stty size 2>/dev/null | awk '{print $2}')
     echo $COLUMNS > /usr/local/bin/wp-cli/COLUMNS
+    WP_CLI_PACKAGES_DIR="WP_CLI_PACKAGES_DIR=/usr/local/bin/wp-cli/packages"
+fi
+
+if [ -z "$wpcli" ]; then
+    echo "= WP CLI is not installed. Please install it manually."
+    exit 1;
 fi
 
 mkdir -p /home/$user/.wp-cli
@@ -83,7 +92,20 @@ fi
 #----------------------------------------------------------#
 
 cd /home/$USER/web/$domain/public_html
-sudo -u $USER /usr/bin/php$phpver -d disable_functions=pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,pcntl_unshare,exec,system,passthru,shell_exec,proc_open,popen -d open_basedir=/home/$user/web/$domain:/home/$user/.wp-cli:/home/$user/tmp:/usr/local/bin $wpcli --path=/home/$user/web/$domain/public_html/ $wp_command 2>/home/$user/web/$domain/wp-cli-error.log
+
+if [ -z "$OPEN_BASEDIR" ]; then
+    OPEN_BASEDIR="/home/$user/web/$domain:/home/$user/.wp-cli:/home/$user/tmp:/usr/local/bin:/tmp"
+fi
+
+if [ -z "$DISABLE_FUNCTIONS" ]; then
+    DISABLE_FUNCTIONS="pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_get_handler,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,pcntl_async_signals,pcntl_unshare,exec,system,passthru,shell_exec,proc_open,popen"
+fi
+
+if [ -z "$SHOW_ERRORS" ]; then
+    sudo -u $USER $WP_CLI_PACKAGES_DIR /usr/bin/php$phpver -d disable_functions=$DISABLE_FUNCTIONS -d open_basedir=$OPEN_BASEDIR $wpcli --path=/home/$user/web/$domain/public_html/ $wp_command 2>/home/$user/web/$domain/wp-cli-error.log
+else
+    sudo -u $USER $WP_CLI_PACKAGES_DIR /usr/bin/php$phpver -d disable_functions=$DISABLE_FUNCTIONS -d open_basedir=$OPEN_BASEDIR $wpcli --path=/home/$user/web/$domain/public_html/ $wp_command
+fi
 
 return_code=$?
 

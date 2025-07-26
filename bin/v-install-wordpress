@@ -71,12 +71,12 @@ if [ -z "$email" ]; then
 fi
 
 if [ ! -d "/home/$user" ]; then
-    echo "User doesn't exist";
+    echo "= Error: Folder /home/$user doesn't exist";
     exit 1;
 fi
 
 if [ ! -d "/home/$user/web/$domain/public_html" ]; then
-    echo "Domain doesn't exist";
+    echo "= Error: Folder /home/$user/web/$domain/public_html doesn't exist";
     exit 1;
 fi
 
@@ -138,24 +138,35 @@ fi
 
 /usr/local/vesta/bin/v-add-database "$user" "$DBUSERSUF" "$DBUSERSUF" "$PASSWDDB" "mysql"
 
-if [ ! -f "/usr/local/bin/wp" ]; then
-    echo "=== Downloading latest wp-cli"
-    wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
-    chmod +x /usr/local/bin/wp
+if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+    echo "= WP CLI is not installed. Installing..."
+    /usr/local/vesta/bin/v-install-wp-cli
+fi
+if [ ! -f "/usr/local/bin/wp" ] && [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+    exit 1;
 fi
 
 WORKINGDIR="/home/$user/web/$domain/public_html"
 rm -rf $WORKINGDIR/*
 cd $WORKINGDIR
 
-sudo -H -u$user wp core download
-sudo -H -u$user wp core config --dbname=$DBUSER --dbuser=$DBUSER --dbpass=$PASSWDDB
+/usr/local/vesta/bin/v-run-wp-cli $domain core download
+if [ ! -f "$WORKINGDIR/index.php" ]; then
+    echo "= WordPress installation failed: WordPress core download failed."
+    exit 1;
+fi
+
+/usr/local/vesta/bin/v-run-wp-cli $domain core config --dbname=$DBUSER --dbuser=$DBUSER --dbpass=$PASSWDDB
+if [ ! -f "$WORKINGDIR/wp-config.php" ]; then
+    echo "= WordPress installation failed: WordPress core config failed, wp-config.php not found."
+    exit 1;
+fi
 
 password=$(LC_CTYPE=C tr -dc A-Za-z0-9_\!\@\#\$\%\^\&\*\(\)-+= < /dev/urandom | head -c 12)
 
 wpadmin=$(echo "$domain" | sed 's#\.#_#g')_4dm1n
 
-sudo -H -u$user wp core install --url="$domain" --title="$domain" --admin_user="$wpadmin" --admin_password="$password" --admin_email="$email" --path=$WORKINGDIR
+/usr/local/vesta/bin/v-run-wp-cli $domain core install --url="$domain" --title="$domain" --admin_user="$wpadmin" --admin_password="$password" --admin_email="$email" --path=$WORKINGDIR
 
 mysql -u$DBUSER -p$PASSWDDB -e "USE $DBUSER; update wp_options set option_value = '$PROTOCOL://$domain' where option_name = 'siteurl'; update wp_options set option_value = '$PROTOCOL://$domain' where option_name = 'home';"
 

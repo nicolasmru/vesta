@@ -63,21 +63,19 @@ if [ ! -f "/home/$user/web/$domain/public_html/wp-config.php" ]; then
     exit 1;
 fi
 
-if ! command -v wp &> /dev/null; then
-    echo "WP CLI is not installed. Installing..."
-    wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
-    chmod +x /usr/local/bin/wp
-    echo "WP CLI installed successfully."
+if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+    echo "= WP CLI is not installed. Installing..."
+    /usr/local/vesta/bin/v-install-wp-cli
 fi
-
-phpver=$(/usr/local/vesta/bin/v-get-php-version-of-domain "$domain")
+if [ ! -f "/usr/local/bin/wp" ] && [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+    exit 1;
+fi
 
 #----------------------------------------------------------#
 #                       Action                             #
 #----------------------------------------------------------#
 
-cd /home/$USER/web/$domain/public_html
-sudo -u $USER /usr/bin/php$phpver /usr/local/bin/wp user create $username $email --role=administrator --user_pass="$password" --skip-plugins=$(sudo -H -u$USER /usr/bin/php$phpver /usr/local/bin/wp plugin list --field=name | tr '\n' ',') --skip-themes;
+/usr/local/vesta/bin/v-run-wp-cli $domain user create $username $email --role=administrator --user_pass="$password" --skip-plugins --skip-themes;
 
 #----------------------------------------------------------#
 #                       Vesta                              #
