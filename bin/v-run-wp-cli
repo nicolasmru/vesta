@@ -61,12 +61,19 @@ if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php
     /usr/local/vesta/bin/v-install-wp-cli
 fi
 
+output='terminal'
+if [ -t 1 ]; then
+    output='terminal'
+else
+    output='file'
+fi
+
 if [ -f "/usr/local/bin/wp" ]; then
     wpcli="/usr/local/bin/wp"
     WP_CLI_PACKAGES_DIR=""
 fi
 
-if [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ] && [ -d "/usr/local/bin/wp-cli/packages/vendor/wp-cli/search-replace-command" ] && [ -z "$USE_WP_CLI_BUNDLED" ]; then
+if  [ ! -z "$USE_WP_CLI_MYVESTA" ] && [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ] && [ -d "/usr/local/bin/wp-cli/packages/vendor/wp-cli/search-replace-command" ] && [ "$output" == "terminal" ]; then
     wpcli="/usr/local/bin/wp-cli/php/boot-fs.php"
     COLUMNS=$(/usr/bin/env stty size 2>/dev/null | awk '{print $2}')
     echo $COLUMNS > /usr/local/bin/wp-cli/COLUMNS
@@ -113,10 +120,11 @@ if [ -f "/usr/local/bin/wp-cli/COLUMNS" ]; then
     rm /usr/local/bin/wp-cli/COLUMNS
 fi
 
-# echo "WP CLI: Done."
-# echo "To see Warning/Error log: "
-# echo "cat /home/$user/web/$domain/wp-cli-error.log"
-
+if [ -z "$SHOW_ERRORS" ]; then
+    if grep -q "PHP Fatal error" /home/$user/web/$domain/wp-cli-error.log || [ $return_code -ne 0 ]; then
+        cat /home/$user/web/$domain/wp-cli-error.log
+    fi
+fi
 #----------------------------------------------------------#
 #                       Vesta                              #
 #----------------------------------------------------------#

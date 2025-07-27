@@ -12,46 +12,11 @@ if [ "$whoami" != "root" ]; then
     exit 1
 fi
 
-# Importing system environment
-source /etc/profile
-
-if [ ! -f "/usr/local/bin/composer" ]; then
-    echo "= Composer is not installed. Installing..."
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-    php -r "unlink('composer-setup.php');"
-    echo "= Composer installed successfully."
-fi
-
-if [ -d "/usr/local/bin/wp-cli" ]; then
-    echo "= Removing old myVesta WP CLI..."
-    rm -rf /usr/local/bin/wp-cli
-fi
-
-echo "= Installing classic WP CLI..."
+echo "= Installing WP CLI by downloading phar file..."
 wget -nv https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
 chmod +x /usr/local/bin/wp
 
-echo "= Installing myVesta WP CLI..."
-
-cd /usr/local/bin
-git clone https://github.com/wp-cli/wp-cli.git
-
-chown -R www-data:www-data wp-cli
-
-cd wp-cli/
-sudo -H -u www-data composer install
-
-echo "= Installing search-replace-command package..."
-sudo -H -u www-data WP_CLI_PACKAGES_DIR=/usr/local/bin/wp-cli/packages php /usr/local/bin/wp-cli/php/boot-fs.php package install wp-cli/search-replace-command
-
-# Fix terminal columns issue for WP CLI
-echo "= Fixing terminal columns issue for WP CLI..."
-/usr/local/vesta/bin/v-sed '$columns = 80;' "if (file_exists('/usr/local/bin/wp-cli/COLUMNS')) \$columns=intval(file_get_contents('/usr/local/bin/wp-cli/COLUMNS')); else \$columns = 80;" '/usr/local/bin/wp-cli/vendor/wp-cli/php-cli-tools/lib/cli/Shell.php'
-
-echo ""
-
-if [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ] || [ -f "/usr/local/bin/wp" ]; then
+if [ -f "/usr/local/bin/wp" ]; then
     echo "= WP CLI installed successfully."
     echo "= Usage: v-run-wp-cli DOMAIN WP_CLI_COMMAND"
     exit 0;

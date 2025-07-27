@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+    echo "= myVesta WP CLI is not installed. Installing..."
+    /usr/local/vesta/bin/v-install-wp-cli-myvesta
+fi
+
+USE_WP_CLI_MYVESTA=1 /usr/local/vesta/bin/v-run-wp-cli "$@"
