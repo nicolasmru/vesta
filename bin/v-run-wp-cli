@@ -61,7 +61,21 @@ if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php
     /usr/local/vesta/bin/v-install-wp-cli
 fi
 
-output='terminal'
+if [ -z "$USE_WP_CLI_MYVESTA" ]; then
+    if [ -f "/usr/local/bin/wp" ]; then
+        # Get current time and file ctime in seconds since epoch
+        current_time=$(date +%s)
+        file_ctime=$(stat -c %Z /usr/local/bin/wp)
+        # Calculate age in days
+        age_days=$(( (current_time - file_ctime) / 86400 ))
+        if [ "$age_days" -gt 30 ]; then
+            echo "= The /usr/local/bin/wp file is older than 30 days (based on CTime)."
+            echo "= Updating WP CLI..."
+            /usr/local/vesta/bin/v-install-wp-cli
+        fi
+    fi
+fi
+
 if [ -t 1 ]; then
     output='terminal'
 else
@@ -73,7 +87,7 @@ if [ -f "/usr/local/bin/wp" ]; then
     WP_CLI_PACKAGES_DIR=""
 fi
 
-if  [ ! -z "$USE_WP_CLI_MYVESTA" ] && [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ] && [ -d "/usr/local/bin/wp-cli/packages/vendor/wp-cli/search-replace-command" ] && [ "$output" == "terminal" ]; then
+if [ ! -z "$USE_WP_CLI_MYVESTA" ] && [ -f "/usr/local/bin/wp-cli/php/boot-fs.php" ] && [ -d "/usr/local/bin/wp-cli/packages/vendor/wp-cli/search-replace-command" ] && [ "$output" == "terminal" ]; then
     wpcli="/usr/local/bin/wp-cli/php/boot-fs.php"
     COLUMNS=$(/usr/bin/env stty size 2>/dev/null | awk '{print $2}')
     echo $COLUMNS > /usr/local/bin/wp-cli/COLUMNS
