@@ -35,11 +35,32 @@ git clone https://github.com/wp-cli/wp-cli.git
 
 chown -R www-data:www-data wp-cli
 
+ver_ge() {
+    # usage: ver_ge 7.2 5.6   --> returns true if $1 is greater than or equal to $2
+    [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
+}
+
+current_php_version=$(readlink -f /usr/bin/php | grep -oP 'php\K[0-9]+\.[0-9]+')
+
+php_versions=$(/usr/local/vesta/bin/v-list-php)
+for php_version in $php_versions; do
+    if ver_ge "$php_version" "7.2"; then
+        oldest_allowed_php_version=$php_version
+        break
+    fi
+done
+
+echo "= Setting PHP version to $oldest_allowed_php_version"
+update-alternatives --set php /usr/bin/php$oldest_allowed_php_version
+
 cd wp-cli/
 sudo -H -u www-data composer install
 
 echo "= Installing search-replace-command package..."
 sudo -H -u www-data WP_CLI_PACKAGES_DIR=/usr/local/bin/wp-cli/packages php /usr/local/bin/wp-cli/php/boot-fs.php package install wp-cli/search-replace-command
+
+echo "= Setting PHP version to $current_php_version"
+update-alternatives --set php /usr/bin/php$current_php_version
 
 # Fix terminal columns issue for WP CLI
 echo "= Fixing terminal columns issue for WP CLI..."
