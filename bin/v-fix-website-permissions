@@ -77,6 +77,15 @@ find public_html/ -type d ! -user $USER -exec chown $USER:$USER {} +
 find public_html/ -type f ! \( -name "*.php" -o -name "*.env" \) ! -user $USER -exec chown $USER:$USER {} +
 
 php_chmod="600"
+if [ -f "/home/php_chmod" ]; then
+    php_chmod=$(cat /home/php_chmod)
+fi
+if [ -f "/home/$USER/php_chmod" ]; then
+    php_chmod=$(cat /home/$USER/php_chmod)
+fi
+if [ -f "/home/$USER/web/php_chmod" ]; then
+    php_chmod=$(cat /home/$USER/web/php_chmod)
+fi
 if [ -f "/home/$USER/web/$domain/php_chmod" ]; then
     php_chmod=$(cat /home/$USER/web/$domain/php_chmod)
 fi
