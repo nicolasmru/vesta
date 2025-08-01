@@ -201,11 +201,9 @@ do
         apt_upgraded=1
         
         kernelupdate=$(grep -c 'linux-image-' /var/log/apt/history.log)
-        if [ $kernelupdate -gt 0 ]; then
+        if [ $kernelupdate -gt 0 ] || [ -f "/run/reboot-required" ] || [ -f "/var/run/reboot-required" ]; then
             touch /root/kernelupdate
-            echo "== kernel is updated"
-        else
-            echo "== kernel is not updated"
+            echo "== kernel is updated, reboot is required!"
         fi
     fi
 
