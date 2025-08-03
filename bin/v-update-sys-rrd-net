@@ -35,13 +35,15 @@ if [ ! -d "$RRD/net" ]; then
     mkdir $RRD/net
 fi
 
+find $RRD/net -name "veth*" -delete
+
 # Parsing network interfaces
 ndev=$(cat /proc/net/dev)
 ifaces=$(echo "$ndev" |grep : |cut -f 1 -d : | sed "s/ //g")
 
 # Parsing excludes
 if [ -z "$RRD_IFACE_EXCLUDE" ]; then
-    RRD_IFACE_EXCLUDE='lo'
+    RRD_IFACE_EXCLUDE='lo,'
 fi
 for exclude in $(echo ${RRD_IFACE_EXCLUDE//,/ }); do
     ifaces=$(echo "$ifaces" |grep -vw "$exclude" )
@@ -62,6 +64,8 @@ for iface in $ifaces; do
             RRA:MAX:0.5:6:700 \
             RRA:MAX:0.5:24:775 \
             RRA:MAX:0.5:288:797
+    else
+        touch $RRD/net/$iface.rrd
     fi
 
     # Parsing device stats
@@ -112,6 +116,8 @@ for iface in $ifaces; do
 
 done
 
+find $RRD/net -name "*.png" -mtime +1 -delete
+find $RRD/net -name "*.rrd" -mtime +1 -delete
 
 #----------------------------------------------------------#
 #                       Vesta                              #
