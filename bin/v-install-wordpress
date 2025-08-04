@@ -138,14 +138,6 @@ fi
 
 /usr/local/vesta/bin/v-add-database "$user" "$DBUSERSUF" "$DBUSERSUF" "$PASSWDDB" "mysql"
 
-if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-    echo "= WP CLI is not installed. Installing..."
-    /usr/local/vesta/bin/v-install-wp-cli
-fi
-if [ ! -f "/usr/local/bin/wp" ] && [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-    exit 1;
-fi
-
 WORKINGDIR="/home/$user/web/$domain/public_html"
 rm -rf $WORKINGDIR/*
 cd $WORKINGDIR

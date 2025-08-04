@@ -40,13 +40,6 @@ is_format_valid 'domain' 'user'
 is_object_valid 'user' 'USER' "$user"
 is_object_unsuspended 'user' 'USER' "$user"
 
-if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-    echo "= WP CLI is not installed. Installing..."
-    /usr/local/vesta/bin/v-install-wp-cli
-fi
-if [ ! -f "/usr/local/bin/wp" ] && [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-    exit 1;
-fi
 
 FROM_DATABASE_NAME=''
 FROM_DATABASE_USERNAME=''
@@ -119,14 +112,6 @@ if [ $IT_IS_WP -eq 0 ]; then
         fi
         cd /root
         git clone https://github.com/interconnectit/Search-Replace-DB.git
-    fi
-else
-    if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-        echo "= WP CLI is not installed. Installing..."
-        /usr/local/vesta/bin/v-install-wp-cli
-    fi
-    if [ ! -f "/usr/local/bin/wp" ] && [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-        exit 1;
     fi
 fi
 

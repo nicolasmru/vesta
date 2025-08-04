@@ -264,14 +264,6 @@ if [ $IT_IS_WP -eq 0 ]; then
         cd /root
         git clone https://github.com/interconnectit/Search-Replace-DB.git
     fi
-else
-    if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-        echo "= WP CLI is not installed. Installing..."
-        /usr/local/vesta/bin/v-install-wp-cli
-    fi
-    if [ ! -f "/usr/local/bin/wp" ] && [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
-        exit 1;
-    fi
 fi
 
 CREATE_TO_DATABASE=0
