@@ -56,7 +56,7 @@ fi
 
 wpcli=""
 
-if [ ! -f "/usr/local/bin/wp" ] || [ ! -f "/usr/local/bin/wp-cli/php/boot-fs.php" ]; then
+if [ ! -f "/usr/local/bin/wp" ]; then
     echo "= WP CLI is not installed. Installing..."
     /usr/local/vesta/bin/v-install-wp-cli
 fi
