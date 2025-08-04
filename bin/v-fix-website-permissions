@@ -28,6 +28,7 @@ USER=$user
 
 # Includes
 source /usr/local/vesta/func/main.sh
+source /usr/local/vesta/conf/vesta.conf
 
 if [ -z "$user" ]; then
     check_result $E_NOTEXIST "domain $domain doesn't exist"
@@ -77,6 +78,11 @@ find public_html/ -type d ! -user $USER -exec chown $USER:$USER {} +
 find public_html/ -type f ! \( -name "*.php" -o -name "*.env" \) ! -user $USER -exec chown $USER:$USER {} +
 
 php_chmod="600"
+
+if [ "$WEB_SYSTEM" = 'nginx' ]; then
+    php_chmod="644"
+fi
+
 if [ -f "/home/php_chmod" ]; then
     php_chmod=$(cat /home/php_chmod)
 fi
