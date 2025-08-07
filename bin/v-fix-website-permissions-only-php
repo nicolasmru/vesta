@@ -1,5 +1,5 @@
 #!/bin/bash
-# info: Fixing chown and chmod permissions for a website
+# info: Fixing PHP and .env permissions and ownership for a website
 # options: DOMAIN [USER]
 
 #----------------------------------------------------------#
@@ -68,7 +68,7 @@ if [ -z "$SKIP_OWNERSHIP_CHECK" ] && [ -f "public_html/index.php" ]; then
     fi
 fi
 
-echo "Updating permissions and ownership for /home/$USER/web/$domain/"
+echo "Updating PHP and .env permissions and ownership for /home/$USER/web/$domain/"
 
 php_chmod_allowed=1
 if [ -f "/home/php_chmod_disabled" ]; then
@@ -82,27 +82,6 @@ if [ -f "/home/$USER/web/php_chmod_disabled" ]; then
 fi
 if [ -f "/home/$USER/web/$domain/php_chmod_disabled" ]; then
     php_chmod_allowed=0
-fi
-
-# === General files and directories permissions ===
-if [ "$php_chmod_allowed" -eq 1 ]; then
-    # New way of fixing permissions
-    # Fixing permissions
-    find public_html/ -type d ! -perm 755 -exec chmod 755 {} +
-    find public_html/ -type f ! \( -name "*.php" -o -name "*.env" \) ! -perm 644 -exec chmod 644 {} +
-
-    # Fixing ownership
-    find public_html/ -type d ! -user $USER -exec chown $USER:$USER {} +
-    find public_html/ -type f ! \( -name "*.php" -o -name "*.env" \) ! -user $USER -exec chown $USER:$USER {} +
-else
-    # Old way of fixing permissions
-    # Fixing permissions
-    find public_html/ -type d ! -perm 755 -exec chmod 755 {} +
-    find public_html/ -type f ! -perm 644 -exec chmod 644 {} +
-
-    # Fixing ownership
-    find public_html/ -type d ! -user $USER -exec chown $USER:$USER {} +
-    find public_html/ -type f ! -user $USER -exec chown $USER:$USER {} +
 fi
 
 # === PHP and .env permissions ===
@@ -134,28 +113,9 @@ if [ "$php_chmod_allowed" -eq 1 ]; then
     find -type f \( -name "*.php" -o -name "*.env" \) ! -user $USER -exec chown $USER:$USER {} +
 fi
 
-# === Symlinks ownership ===
-symlink_chown_allowed=1
-if [ -f "/home/symlink_chown_disabled" ]; then
-    symlink_chown_allowed=0
-fi
-if [ -f "/home/$USER/symlink_chown_disabled" ]; then
-    symlink_chown_allowed=0
-fi
-if [ -f "/home/$USER/web/symlink_chown_disabled" ]; then
-    symlink_chown_allowed=0
-fi
-if [ -f "/home/$USER/web/$domain/symlink_chown_disabled" ]; then
-    symlink_chown_allowed=0
-fi
-
-if [ "$symlink_chown_allowed" -eq 1 ]; then
-    find -type l ! -user $USER -exec chown -h $USER:$USER {} +
-fi
-
 #----------------------------------------------------------#
 #                       Vesta                              #
 #----------------------------------------------------------#
-echo "Permissions for $domain have been successfully updated."
+echo "PHP and .env permissions and ownership for $domain have been successfully updated."
 
 exit 0

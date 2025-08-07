@@ -1894,7 +1894,7 @@ command="sudo $VESTA/bin/v-update-user-stats"
 $VESTA/bin/v-add-cron-job 'admin' '20' '00' '*' '*' '*' "$command"
 command="sudo $VESTA/bin/v-update-sys-rrd"
 $VESTA/bin/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "$command"
-command="sudo $VESTA/bin/v-fix-website-permissions-for-all-websites > /dev/null 2>&1"
+command="sudo $VESTA/bin/v-fix-website-permissions-for-all-websites-only-php"
 $VESTA/bin/v-add-cron-job 'admin' '05' '03' '*' '*' '*' "$command"
 systemctl restart cron.service
 
