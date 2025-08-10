@@ -323,7 +323,11 @@ if (!empty($_POST['ok'])) {
         }
 
         if (!empty($_SESSION['error_msg']) && $domain_added) {
-            $_SESSION['ok_msg'] = __('WEB_DOMAIN_CREATED_OK',htmlentities($_POST[v_domain]),htmlentities($_POST[v_domain]));
+            if (PHP_VERSION_ID >= 50600 && PHP_VERSION_ID < 50700) {
+                $_SESSION['ok_msg'] = __('WEB_DOMAIN_CREATED_OK',htmlentities($_POST[v_domain]),htmlentities($_POST[v_domain]));
+            } else {
+                $_SESSION['ok_msg'] = __('WEB_DOMAIN_CREATED_OK',htmlentities($_POST['v_domain']),htmlentities($_POST['v_domain']));
+            }
             $_SESSION['flash_error_msg'] = $_SESSION['error_msg'];
             $url = '/edit/web/?domain='.strtolower(preg_replace("/^www\./i", "", $_POST['v_domain']));
             header('Location: ' . $url);

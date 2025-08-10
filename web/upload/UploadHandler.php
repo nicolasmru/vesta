@@ -1095,8 +1095,13 @@ class UploadHandler
             }
         }
         if (count($failed_versions)) {
-            $file->error = $this->get_error_message('image_resize')
-                    .' ('.implode($failed_versions,', ').')';
+            if (PHP_VERSION_ID >= 50600 && PHP_VERSION_ID < 50700) {
+                $file->error = $this->get_error_message('image_resize')
+                        .' ('.implode($failed_versions,', ').')';
+            } else {
+                $file->error = $this->get_error_message('image_resize')
+                        .' ('.implode(', ', $failed_versions).')';
+            }
         }
         // Free memory:
         $this->destroy_image_object($file_path);
