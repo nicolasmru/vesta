@@ -36,11 +36,13 @@ if ($v_timezone == 'America/Halifax' ) $v_timezone = 'ADT';
 // List supported languages
 exec (VESTA_CMD."v-list-sys-languages json", $output, $return_var);
 $languages = json_decode(implode('', $output), true);
+if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($languages)) { $languages = array(); }
 unset($output);
 
 // List dns cluster hosts
 exec (VESTA_CMD."v-list-remote-dns-hosts json", $output, $return_var);
 $dns_cluster = json_decode(implode('', $output), true);
+if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($dns_cluster)) { $dns_cluster = array(); }
 unset($output);
 foreach ($dns_cluster as $key => $value) {
     $v_dns_cluster = 'yes';
@@ -49,11 +51,12 @@ foreach ($dns_cluster as $key => $value) {
 // List Database hosts
 exec (VESTA_CMD."v-list-database-hosts json", $output, $return_var);
 $db_hosts = json_decode(implode('', $output), true);
+if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($db_hosts)) { $db_hosts = array(); }
 unset($output);
 $v_mysql_hosts = array_values(array_filter($db_hosts, function($host){return $host['TYPE'] === 'mysql';}));
-$v_mysql = count($v_mysql_hosts) ? 'yes' : 'no';
+$v_mysql = (version_compare(PHP_VERSION, '5.6', '==') ? count($v_mysql_hosts) : (is_array($v_mysql_hosts) ? count($v_mysql_hosts) : 0)) ? 'yes' : 'no';
 $v_pgsql_hosts = array_values(array_filter($db_hosts, function($host){return $host['TYPE'] === 'pgsql';}));
-$v_pgsql = count($v_pgsql_hosts) ? 'yes' : 'no';
+$v_pgsql = (version_compare(PHP_VERSION, '5.6', '==') ? count($v_pgsql_hosts) : (is_array($v_pgsql_hosts) ? count($v_pgsql_hosts) : 0)) ? 'yes' : 'no';
 unset($db_hosts);
 
 // List backup settings
@@ -81,12 +84,14 @@ foreach ($backup_types as $backup_type) {
 // List ssl web domains
 exec (VESTA_CMD."v-search-ssl-certificates json", $output, $return_var);
 $v_ssl_domains = json_decode(implode('', $output), true);
+if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($v_ssl_domains)) { $v_ssl_domains = array(); }
 //$v_vesta_certificate
 unset($output);
 
 // List ssl certificate info
 exec (VESTA_CMD."v-list-sys-vesta-ssl json", $output, $return_var);
 $v_sys_ssl_str = json_decode(implode('', $output), true);
+if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($v_sys_ssl_str)) { $v_sys_ssl_str = array('VESTA'=>array()); }
 unset($output);
 $v_sys_ssl_crt = $v_sys_ssl_str['VESTA']['CRT'];
 $v_sys_ssl_key = $v_sys_ssl_str['VESTA']['KEY'];
@@ -103,6 +108,7 @@ $v_sys_ssl_issuer = $v_sys_ssl_str['VESTA']['ISSUER'];
 if (!empty($_SESSION['VESTA_CERTIFICATE'])); {
     exec (VESTA_CMD."v-list-sys-mail-ssl json", $output, $return_var);
     $v_mail_ssl_str = json_decode(implode('', $output), true);
+    if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($v_mail_ssl_str)) { $v_mail_ssl_str = array('MAIL'=>array()); }
     unset($output);
     $v_mail_ssl_crt = $v_mail_ssl_str['MAIL']['CRT'];
     $v_mail_ssl_key = $v_mail_ssl_str['MAIL']['KEY'];
@@ -242,6 +248,7 @@ if (!empty($_POST['save'])) {
                 // List SSL certificate info
                 exec (VESTA_CMD."v-list-sys-mail-ssl json", $output, $return_var);
                 $v_mail_ssl_str = json_decode(implode('', $output), true);
+                if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($v_mail_ssl_str)) { $v_mail_ssl_str = array('MAIL'=>array()); }
                 unset($output);
                 $v_mail_ssl_crt = $v_mail_ssl_str['MAIL']['CRT'];
                 $v_mail_ssl_key = $v_mail_ssl_str['MAIL']['KEY'];

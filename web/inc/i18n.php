@@ -89,7 +89,11 @@ function detect_user_language($fallback='en') {
             $accept_langs_sorted[$code] = (double)$q;
         }
     }
-    arsort($accept_langs_sorted);
+    if (version_compare(PHP_VERSION, '5.6', '==')) {
+        arsort($accept_langs_sorted);
+    } else {
+        if (!empty($accept_langs_sorted)) { arsort($accept_langs_sorted); }
+    }
 
     // List languages
     exec (VESTA_CMD."v-list-sys-languages json", $output, $return_var);

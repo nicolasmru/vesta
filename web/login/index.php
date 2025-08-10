@@ -27,7 +27,12 @@ if (isset($_SESSION['user'])) {
     if ($_SESSION['user'] == 'admin' && !empty($_GET['loginas'])) {
         exec (VESTA_CMD . "v-list-user ".escapeshellarg($_GET['loginas'])." json", $output, $return_var);
         if ( $return_var == 0 ) {
-            $data = json_decode(implode('', $output), true);
+            if (version_compare(PHP_VERSION, '5.6', '==')) {
+                $data = json_decode(implode('', $output), true);
+            } else {
+                $data = json_decode(implode('', $output), true);
+                if (!is_array($data)) { $data = array(); }
+            }
             reset($data);
             $_SESSION['look'] = key($data);
             $_SESSION['look_alert'] = 'yes';
@@ -51,7 +56,12 @@ if (isset($_POST['user']) && isset($_POST['password'])) {
             // Get user's salt
             $output = '';
             exec (VESTA_CMD."v-get-user-salt ".$v_user." ".$v_ip." json" , $output, $return_var);
-            $pam = json_decode(implode('', $output), true);
+            if (version_compare(PHP_VERSION, '5.6', '==')) {
+                $pam = json_decode(implode('', $output), true);
+            } else {
+                $pam = json_decode(implode('', $output), true);
+                if (!is_array($pam)) { $pam = array(); }
+            }
             if ( $return_var > 0 ) {
                 $ERROR = "<a class=\"error\">".__('Invalid username or password')."</a>";
             } else {
@@ -94,7 +104,12 @@ if (isset($_POST['user']) && isset($_POST['password'])) {
 
                     // Get user speciefic parameters
                     exec (VESTA_CMD . "v-list-user ".$v_user." json", $output, $return_var);
-                    $data = json_decode(implode('', $output), true);
+                    if (version_compare(PHP_VERSION, '5.6', '==')) {
+                        $data = json_decode(implode('', $output), true);
+                    } else {
+                        $data = json_decode(implode('', $output), true);
+                        if (!is_array($data)) { $data = array(); }
+                    }
 
                     // Define session user
                     $_SESSION['user'] = key($data);
@@ -106,7 +121,12 @@ if (isset($_POST['user']) && isset($_POST['password'])) {
                     // Define language
                     $output = '';
                     exec (VESTA_CMD."v-list-sys-languages json", $output, $return_var);
-                    $languages = json_decode(implode('', $output), true);
+                    if (version_compare(PHP_VERSION, '5.6', '==')) {
+                        $languages = json_decode(implode('', $output), true);
+                    } else {
+                        $languages = json_decode(implode('', $output), true);
+                        if (!is_array($languages)) { $languages = array(); }
+                    }
                     if (in_array($data[$v_user]['LANGUAGE'], $languages)){
                         $_SESSION['language'] = $data[$v_user]['LANGUAGE'];
                     } else {
@@ -135,7 +155,12 @@ if (isset($_POST['user']) && isset($_POST['password'])) {
 
 // Check system configuration
 exec (VESTA_CMD . "v-list-sys-config json", $output, $return_var);
-$data = json_decode(implode('', $output), true);
+if (version_compare(PHP_VERSION, '5.6', '==')) {
+    $data = json_decode(implode('', $output), true);
+} else {
+    $data = json_decode(implode('', $output), true);
+    if (!is_array($data)) { $data = array('config' => array()); }
+}
 $sys_arr = $data['config'];
 foreach ($sys_arr as $key => $value) {
     $_SESSION[$key] = $value;
@@ -145,12 +170,22 @@ foreach ($sys_arr as $key => $value) {
 if (empty($_SESSION['language'])) {
     $output = '';
     exec (VESTA_CMD."v-list-sys-config json", $output, $return_var);
-    $config = json_decode(implode('', $output), true);
+    if (version_compare(PHP_VERSION, '5.6', '==')) {
+        $config = json_decode(implode('', $output), true);
+    } else {
+        $config = json_decode(implode('', $output), true);
+        if (!is_array($config)) { $config = array('config' => array('LANGUAGE' => 'en')); }
+    }
     $lang = $config['config']['LANGUAGE'];
 
     $output = '';
     exec (VESTA_CMD."v-list-sys-languages json", $output, $return_var);
-    $languages = json_decode(implode('', $output), true);
+    if (version_compare(PHP_VERSION, '5.6', '==')) {
+        $languages = json_decode(implode('', $output), true);
+    } else {
+        $languages = json_decode(implode('', $output), true);
+        if (!is_array($languages)) { $languages = array(); }
+    }
     if(in_array($lang, $languages)){
         $_SESSION['language'] = $lang;
     }

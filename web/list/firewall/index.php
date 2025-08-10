@@ -14,7 +14,7 @@ if ($_SESSION['user'] != 'admin') {
 // Data
 exec (VESTA_CMD."v-list-firewall json", $output, $return_var);
 $data = json_decode(implode('', $output), true);
-$data = array_reverse($data, true);
+if (version_compare(PHP_VERSION, '5.6', '==')) { $data = array_reverse($data, true); } else { $data = is_array($data) ? array_reverse($data, true) : array(); }
 unset($output);
 
 // Render page
