@@ -111,7 +111,7 @@ if (isset($_POST['user']) && isset($_POST['password'])) {
                     exec (VESTA_CMD."v-list-sys-languages json", $output, $return_var);
                     $languages = json_decode(implode('', $output), true);
                     if (!is_array($languages)) $languages = array();
-                    if (in_array($data[$v_user]['LANGUAGE'], $languages)){
+                    if (isset($data[$v_user]['LANGUAGE']) && in_array($data[$v_user]['LANGUAGE'], $languages)){
                         $_SESSION['language'] = $data[$v_user]['LANGUAGE'];
                     } else {
                         $_SESSION['language'] = 'en';

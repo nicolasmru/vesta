@@ -95,33 +95,33 @@ exec (VESTA_CMD."v-list-sys-vesta-ssl json", $output, $return_var);
 $v_sys_ssl_str = json_decode(implode('', $output), true);
 if (!is_array($v_sys_ssl_str)) $v_sys_ssl_str = array('VESTA'=>array());
 unset($output);
-$v_sys_ssl_crt = $v_sys_ssl_str['VESTA']['CRT'];
-$v_sys_ssl_key = $v_sys_ssl_str['VESTA']['KEY'];
-$v_sys_ssl_ca = $v_sys_ssl_str['VESTA']['CA'];
-$v_sys_ssl_subject = $v_sys_ssl_str['VESTA']['SUBJECT'];
-$v_sys_ssl_aliases = $v_sys_ssl_str['VESTA']['ALIASES'];
-$v_sys_ssl_not_before = $v_sys_ssl_str['VESTA']['NOT_BEFORE'];
-$v_sys_ssl_not_after = $v_sys_ssl_str['VESTA']['NOT_AFTER'];
-$v_sys_ssl_signature = $v_sys_ssl_str['VESTA']['SIGNATURE'];
-$v_sys_ssl_pub_key = $v_sys_ssl_str['VESTA']['PUB_KEY'];
-$v_sys_ssl_issuer = $v_sys_ssl_str['VESTA']['ISSUER'];
+$v_sys_ssl_crt = isset($v_sys_ssl_str['VESTA']['CRT']) ? $v_sys_ssl_str['VESTA']['CRT'] : '';
+$v_sys_ssl_key = isset($v_sys_ssl_str['VESTA']['KEY']) ? $v_sys_ssl_str['VESTA']['KEY'] : '';
+$v_sys_ssl_ca = isset($v_sys_ssl_str['VESTA']['CA']) ? $v_sys_ssl_str['VESTA']['CA'] : '';
+$v_sys_ssl_subject = isset($v_sys_ssl_str['VESTA']['SUBJECT']) ? $v_sys_ssl_str['VESTA']['SUBJECT'] : '';
+$v_sys_ssl_aliases = isset($v_sys_ssl_str['VESTA']['ALIASES']) ? $v_sys_ssl_str['VESTA']['ALIASES'] : '';
+$v_sys_ssl_not_before = isset($v_sys_ssl_str['VESTA']['NOT_BEFORE']) ? $v_sys_ssl_str['VESTA']['NOT_BEFORE'] : '';
+$v_sys_ssl_not_after = isset($v_sys_ssl_str['VESTA']['NOT_AFTER']) ? $v_sys_ssl_str['VESTA']['NOT_AFTER'] : '';
+$v_sys_ssl_signature = isset($v_sys_ssl_str['VESTA']['SIGNATURE']) ? $v_sys_ssl_str['VESTA']['SIGNATURE'] : '';
+$v_sys_ssl_pub_key = isset($v_sys_ssl_str['VESTA']['PUB_KEY']) ? $v_sys_ssl_str['VESTA']['PUB_KEY'] : '';
+$v_sys_ssl_issuer = isset($v_sys_ssl_str['VESTA']['ISSUER']) ? $v_sys_ssl_str['VESTA']['ISSUER'] : '';
 
 // List mail ssl certificate info
-if (!empty($_SESSION['VESTA_CERTIFICATE'])); {
+if (!empty($_SESSION['VESTA_CERTIFICATE'])) {
     exec (VESTA_CMD."v-list-sys-mail-ssl json", $output, $return_var);
     $v_mail_ssl_str = json_decode(implode('', $output), true);
     if (!is_array($v_mail_ssl_str)) $v_mail_ssl_str = array('MAIL'=>array());
     unset($output);
-    $v_mail_ssl_crt = $v_mail_ssl_str['MAIL']['CRT'];
-    $v_mail_ssl_key = $v_mail_ssl_str['MAIL']['KEY'];
-    $v_mail_ssl_ca = $v_mail_ssl_str['MAIL']['CA'];
-    $v_mail_ssl_subject = $v_mail_ssl_str['MAIL']['SUBJECT'];
-    $v_mail_ssl_aliases = $v_mail_ssl_str['MAIL']['ALIASES'];
-    $v_mail_ssl_not_before = $v_mail_ssl_str['MAIL']['NOT_BEFORE'];
-    $v_mail_ssl_not_after = $v_mail_ssl_str['MAIL']['NOT_AFTER'];
-    $v_mail_ssl_signature = $v_mail_ssl_str['MAIL']['SIGNATURE'];
-    $v_mail_ssl_pub_key = $v_mail_ssl_str['MAIL']['PUB_KEY'];
-    $v_mail_ssl_issuer = $v_mail_ssl_str['MAIL']['ISSUER'];
+    $v_mail_ssl_crt = isset($v_mail_ssl_str['MAIL']['CRT']) ? $v_mail_ssl_str['MAIL']['CRT'] : '';
+    $v_mail_ssl_key = isset($v_mail_ssl_str['MAIL']['KEY']) ? $v_mail_ssl_str['MAIL']['KEY'] : '';
+    $v_mail_ssl_ca = isset($v_mail_ssl_str['MAIL']['CA']) ? $v_mail_ssl_str['MAIL']['CA'] : '';
+    $v_mail_ssl_subject = isset($v_mail_ssl_str['MAIL']['SUBJECT']) ? $v_mail_ssl_str['MAIL']['SUBJECT'] : '';
+    $v_mail_ssl_aliases = isset($v_mail_ssl_str['MAIL']['ALIASES']) ? $v_mail_ssl_str['MAIL']['ALIASES'] : '';
+    $v_mail_ssl_not_before = isset($v_mail_ssl_str['MAIL']['NOT_BEFORE']) ? $v_mail_ssl_str['MAIL']['NOT_BEFORE'] : '';
+    $v_mail_ssl_not_after = isset($v_mail_ssl_str['MAIL']['NOT_AFTER']) ? $v_mail_ssl_str['MAIL']['NOT_AFTER'] : '';
+    $v_mail_ssl_signature = isset($v_mail_ssl_str['MAIL']['SIGNATURE']) ? $v_mail_ssl_str['MAIL']['SIGNATURE'] : '';
+    $v_mail_ssl_pub_key = isset($v_mail_ssl_str['MAIL']['PUB_KEY']) ? $v_mail_ssl_str['MAIL']['PUB_KEY'] : '';
+    $v_mail_ssl_issuer = isset($v_mail_ssl_str['MAIL']['ISSUER']) ? $v_mail_ssl_str['MAIL']['ISSUER'] : '';
 }
 
 // Check POST request
@@ -252,16 +252,16 @@ if (!empty($_POST['save'])) {
                 $v_mail_ssl_str = json_decode(implode('', $output), true);
                 if (!is_array($v_mail_ssl_str)) $v_mail_ssl_str = array('MAIL'=>array());
                 unset($output);
-                $v_mail_ssl_crt = $v_mail_ssl_str['MAIL']['CRT'];
-                $v_mail_ssl_key = $v_mail_ssl_str['MAIL']['KEY'];
-                $v_mail_ssl_ca = $v_mail_ssl_str['MAIL']['CA'];
-                $v_mail_ssl_subject = $v_mail_ssl_str['MAIL']['SUBJECT'];
-                $v_mail_ssl_aliases = $v_mail_ssl_str['MAIL']['ALIASES'];
-                $v_mail_ssl_not_before = $v_mail_ssl_str['MAIL']['NOT_BEFORE'];
-                $v_mail_ssl_not_after = $v_mail_ssl_str['MAIL']['NOT_AFTER'];
-                $v_mail_ssl_signature = $v_mail_ssl_str['MAIL']['SIGNATURE'];
-                $v_mail_ssl_pub_key = $v_mail_ssl_str['MAIL']['PUB_KEY'];
-                $v_mail_ssl_issuer = $v_mail_ssl_str['MAIL']['ISSUER'];
+                $v_mail_ssl_crt = isset($v_mail_ssl_str['MAIL']['CRT']) ? $v_mail_ssl_str['MAIL']['CRT'] : '';
+                $v_mail_ssl_key = isset($v_mail_ssl_str['MAIL']['KEY']) ? $v_mail_ssl_str['MAIL']['KEY'] : '';
+                $v_mail_ssl_ca = isset($v_mail_ssl_str['MAIL']['CA']) ? $v_mail_ssl_str['MAIL']['CA'] : '';
+                $v_mail_ssl_subject = isset($v_mail_ssl_str['MAIL']['SUBJECT']) ? $v_mail_ssl_str['MAIL']['SUBJECT'] : '';
+                $v_mail_ssl_aliases = isset($v_mail_ssl_str['MAIL']['ALIASES']) ? $v_mail_ssl_str['MAIL']['ALIASES'] : '';
+                $v_mail_ssl_not_before = isset($v_mail_ssl_str['MAIL']['NOT_BEFORE']) ? $v_mail_ssl_str['MAIL']['NOT_BEFORE'] : '';
+                $v_mail_ssl_not_after = isset($v_mail_ssl_str['MAIL']['NOT_AFTER']) ? $v_mail_ssl_str['MAIL']['NOT_AFTER'] : '';
+                $v_mail_ssl_signature = isset($v_mail_ssl_str['MAIL']['SIGNATURE']) ? $v_mail_ssl_str['MAIL']['SIGNATURE'] : '';
+                $v_mail_ssl_pub_key = isset($v_mail_ssl_str['MAIL']['PUB_KEY']) ? $v_mail_ssl_str['MAIL']['PUB_KEY'] : '';
+                $v_mail_ssl_issuer = isset($v_mail_ssl_str['MAIL']['ISSUER']) ? $v_mail_ssl_str['MAIL']['ISSUER'] : '';
             }
         }
     }
@@ -453,17 +453,18 @@ if (!empty($_POST['save'])) {
                 // List SSL certificate info
                 exec (VESTA_CMD."v-list-sys-vesta-ssl json", $output, $return_var);
                 $v_sys_ssl_str = json_decode(implode('', $output), true);
+                if (!is_array($v_sys_ssl_str)) $v_sys_ssl_str = array('VESTA'=>array());
                 unset($output);
-                $v_sys_ssl_crt = $v_sys_ssl_str['VESTA']['CRT'];
-                $v_sys_ssl_key = $v_sys_ssl_str['VESTA']['KEY'];
-                $v_sys_ssl_ca = $v_sys_ssl_str['VESTA']['CA'];
-                $v_sys_ssl_subject = $v_sys_ssl_str['VESTA']['SUBJECT'];
-                $v_sys_ssl_aliases = $v_sys_ssl_str['VESTA']['ALIASES'];
-                $v_sys_ssl_not_before = $v_sys_ssl_str['VESTA']['NOT_BEFORE'];
-                $v_sys_ssl_not_after = $v_sys_ssl_str['VESTA']['NOT_AFTER'];
-                $v_sys_ssl_signature = $v_sys_ssl_str['VESTA']['SIGNATURE'];
-                $v_sys_ssl_pub_key = $v_sys_ssl_str['VESTA']['PUB_KEY'];
-                $v_sys_ssl_issuer = $v_sys_ssl_str['VESTA']['ISSUER'];
+                $v_sys_ssl_crt = isset($v_sys_ssl_str['VESTA']['CRT']) ? $v_sys_ssl_str['VESTA']['CRT'] : '';
+                $v_sys_ssl_key = isset($v_sys_ssl_str['VESTA']['KEY']) ? $v_sys_ssl_str['VESTA']['KEY'] : '';
+                $v_sys_ssl_ca = isset($v_sys_ssl_str['VESTA']['CA']) ? $v_sys_ssl_str['VESTA']['CA'] : '';
+                $v_sys_ssl_subject = isset($v_sys_ssl_str['VESTA']['SUBJECT']) ? $v_sys_ssl_str['VESTA']['SUBJECT'] : '';
+                $v_sys_ssl_aliases = isset($v_sys_ssl_str['VESTA']['ALIASES']) ? $v_sys_ssl_str['VESTA']['ALIASES'] : '';
+                $v_sys_ssl_not_before = isset($v_sys_ssl_str['VESTA']['NOT_BEFORE']) ? $v_sys_ssl_str['VESTA']['NOT_BEFORE'] : '';
+                $v_sys_ssl_not_after = isset($v_sys_ssl_str['VESTA']['NOT_AFTER']) ? $v_sys_ssl_str['VESTA']['NOT_AFTER'] : '';
+                $v_sys_ssl_signature = isset($v_sys_ssl_str['VESTA']['SIGNATURE']) ? $v_sys_ssl_str['VESTA']['SIGNATURE'] : '';
+                $v_sys_ssl_pub_key = isset($v_sys_ssl_str['VESTA']['PUB_KEY']) ? $v_sys_ssl_str['VESTA']['PUB_KEY'] : '';
+                $v_sys_ssl_issuer = isset($v_sys_ssl_str['VESTA']['ISSUER']) ? $v_sys_ssl_str['VESTA']['ISSUER'] : '';
             }
         }
     }
@@ -499,17 +500,18 @@ if (!empty($_POST['save'])) {
                 // List ssl certificate info
                 exec (VESTA_CMD."v-list-sys-vesta-ssl json", $output, $return_var);
                 $v_sys_ssl_str = json_decode(implode('', $output), true);
+                if (!is_array($v_sys_ssl_str)) $v_sys_ssl_str = array('VESTA'=>array());
                 unset($output);
-                $v_sys_ssl_crt = $v_sys_ssl_str['VESTA']['CRT'];
-                $v_sys_ssl_key = $v_sys_ssl_str['VESTA']['KEY'];
-                $v_sys_ssl_ca = $v_sys_ssl_str['VESTA']['CA'];
-                $v_sys_ssl_subject = $v_sys_ssl_str['VESTA']['SUBJECT'];
-                $v_sys_ssl_aliases = $v_sys_ssl_str['VESTA']['ALIASES'];
-                $v_sys_ssl_not_before = $v_sys_ssl_str['VESTA']['NOT_BEFORE'];
-                $v_sys_ssl_not_after = $v_sys_ssl_str['VESTA']['NOT_AFTER'];
-                $v_sys_ssl_signature = $v_sys_ssl_str['VESTA']['SIGNATURE'];
-                $v_sys_ssl_pub_key = $v_sys_ssl_str['VESTA']['PUB_KEY'];
-                $v_sys_ssl_issuer = $v_sys_ssl_str['VESTA']['ISSUER'];
+                $v_sys_ssl_crt = isset($v_sys_ssl_str['VESTA']['CRT']) ? $v_sys_ssl_str['VESTA']['CRT'] : '';
+                $v_sys_ssl_key = isset($v_sys_ssl_str['VESTA']['KEY']) ? $v_sys_ssl_str['VESTA']['KEY'] : '';
+                $v_sys_ssl_ca = isset($v_sys_ssl_str['VESTA']['CA']) ? $v_sys_ssl_str['VESTA']['CA'] : '';
+                $v_sys_ssl_subject = isset($v_sys_ssl_str['VESTA']['SUBJECT']) ? $v_sys_ssl_str['VESTA']['SUBJECT'] : '';
+                $v_sys_ssl_aliases = isset($v_sys_ssl_str['VESTA']['ALIASES']) ? $v_sys_ssl_str['VESTA']['ALIASES'] : '';
+                $v_sys_ssl_not_before = isset($v_sys_ssl_str['VESTA']['NOT_BEFORE']) ? $v_sys_ssl_str['VESTA']['NOT_BEFORE'] : '';
+                $v_sys_ssl_not_after = isset($v_sys_ssl_str['VESTA']['NOT_AFTER']) ? $v_sys_ssl_str['VESTA']['NOT_AFTER'] : '';
+                $v_sys_ssl_signature = isset($v_sys_ssl_str['VESTA']['SIGNATURE']) ? $v_sys_ssl_str['VESTA']['SIGNATURE'] : '';
+                $v_sys_ssl_pub_key = isset($v_sys_ssl_str['VESTA']['PUB_KEY']) ? $v_sys_ssl_str['VESTA']['PUB_KEY'] : '';
+                $v_sys_ssl_issuer = isset($v_sys_ssl_str['VESTA']['ISSUER']) ? $v_sys_ssl_str['VESTA']['ISSUER'] : '';
             }
         }
     }

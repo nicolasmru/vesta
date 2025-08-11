@@ -32,7 +32,7 @@ if ((!empty($_POST['user'])) && (empty($_POST['code']))) {
         if (strlen($rkeyexp)>9) $rkeyexp=intval($rkeyexp);
         unset($output);
         if ($rkeyexp === null || $rkeyexp < time() - 900) {
-            if ($email == $data[$user]['CONTACT']) {
+            if (isset($data[$user]['CONTACT']) && $email == $data[$user]['CONTACT']) {
                 exec("/usr/bin/sudo /usr/local/vesta/bin/v-change-user-rkey ".$v_user, $output, $return_var);
                 unset($output);
                 $CMD="/usr/bin/sudo /usr/local/vesta/bin/v-get-user-value ".$v_user." RKEY";
@@ -42,10 +42,10 @@ if ((!empty($_POST['user'])) && (empty($_POST['code']))) {
                 //echo $rkey; exit;
                 //echo $CMD."\n<br />";
                 //var_dump($rkey); exit;
-                $fname = $data[$user]['FNAME'];
-                $lname = $data[$user]['LNAME'];
-                $contact = $data[$user]['CONTACT'];
-                $to = $data[$user]['CONTACT'];
+                $fname = isset($data[$user]['FNAME']) ? $data[$user]['FNAME'] : '';
+                $lname = isset($data[$user]['LNAME']) ? $data[$user]['LNAME'] : '';
+                $contact = isset($data[$user]['CONTACT']) ? $data[$user]['CONTACT'] : '';
+                $to = isset($data[$user]['CONTACT']) ? $data[$user]['CONTACT'] : '';
                 $subject = __('MAIL_RESET_SUBJECT',date("Y-m-d H:i:s"));
                 $hostname = exec('hostname');
                 $from = __('MAIL_FROM',$hostname);
@@ -88,7 +88,7 @@ if ((!empty($_POST['user'])) && (!empty($_POST['code'])) && (!empty($_POST['pass
             $data = json_decode(implode('', $output), true);
             if (!is_array($data)) { $data = array(); }
             unset($output);
-            $rkey = $data[$user]['RKEY'];
+            $rkey = isset($data[$user]['RKEY']) ? $data[$user]['RKEY'] : '';
             if (hash_equals($rkey, $_POST['code'])) {
                 unset($output);
                 exec("/usr/bin/sudo /usr/local/vesta/bin/v-get-user-value ".$v_user." RKEYEXP", $output, $return_var);

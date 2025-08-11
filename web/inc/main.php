@@ -112,13 +112,15 @@ function get_favourites(){
     $data = is_array($data) ? array_reverse($data, true) : array();
     $favourites = array();
 
-    foreach($data['Favourites'] as $key => $favourite){
-        $favourites[$key] = array();
+    if (isset($data['Favourites']) && is_array($data['Favourites'])) {
+        foreach($data['Favourites'] as $key => $favourite){
+            $favourites[$key] = array();
 
-        $items = explode(',', $favourite);
-        foreach($items as $item){
-            if($item)
-                $favourites[$key][trim($item)] = 1;
+            $items = explode(',', $favourite);
+            foreach($items as $item){
+                if($item)
+                    $favourites[$key][trim($item)] = 1;
+            }
         }
     }
 
