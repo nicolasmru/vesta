@@ -28,7 +28,7 @@ $command = $_SESSION['user'] == 'admin'
 
 exec (VESTA_CMD . $command, $output, $return_var);
 $data = json_decode(implode('', $output), true);
-if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($data)) { $data = array(); }
+if (!is_array($data)) $data = array();
 
 // Render page
 render_page($user, $TAB, 'list_search');

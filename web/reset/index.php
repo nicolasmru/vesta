@@ -24,12 +24,8 @@ if ((!empty($_POST['user'])) && (empty($_POST['code']))) {
     $cmd="/usr/bin/sudo /usr/local/vesta/bin/v-list-user";
     exec ($cmd." ".$v_user." json", $output, $return_var);
     if ( $return_var == 0 ) {
-        if (version_compare(PHP_VERSION, '5.6', '==')) {
-            $data = json_decode(implode('', $output), true);
-        } else {
-            $data = json_decode(implode('', $output), true);
-            if (!is_array($data)) { $data = array(); }
-        }
+        $data = json_decode(implode('', $output), true);
+        if (!is_array($data)) { $data = array(); }
         unset($output);
         exec("/usr/bin/sudo /usr/local/vesta/bin/v-get-user-value ".$v_user." RKEYEXP", $output, $return_var);
         $rkeyexp = trim(implode('', $output));
@@ -89,12 +85,8 @@ if ((!empty($_POST['user'])) && (!empty($_POST['code'])) && (!empty($_POST['pass
         $cmd="/usr/bin/sudo /usr/local/vesta/bin/v-list-user";
         exec ($cmd." ".$v_user." json", $output, $return_var);
         if ( $return_var == 0 ) {
-            if (version_compare(PHP_VERSION, '5.6', '==')) {
-                $data = json_decode(implode('', $output), true);
-            } else {
-                $data = json_decode(implode('', $output), true);
-                if (!is_array($data)) { $data = array(); }
-            }
+            $data = json_decode(implode('', $output), true);
+            if (!is_array($data)) { $data = array(); }
             unset($output);
             $rkey = $data[$user]['RKEY'];
             if (hash_equals($rkey, $_POST['code'])) {

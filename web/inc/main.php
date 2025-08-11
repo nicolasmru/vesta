@@ -108,14 +108,8 @@ if (isset($_SESSION['look']) && ( $_SESSION['look'] != 'admin' )) {
 
 function get_favourites(){
     exec (VESTA_CMD."v-list-user-favourites ".$_SESSION['user']." json", $output, $return_var);
-//    $data = json_decode(implode('', $output).'}', true);
-    if (version_compare(PHP_VERSION, '5.6', '==')) {
-        $data = json_decode(implode('', $output), true);
-        $data = array_reverse($data, true);
-    } else {
-        $data = json_decode(implode('', $output), true);
-        $data = is_array($data) ? array_reverse($data, true) : array();
-    }
+    $data = json_decode(implode('', $output), true);
+    $data = is_array($data) ? array_reverse($data, true) : array();
     $favourites = array();
 
     foreach($data['Favourites'] as $key => $favourite){
@@ -193,24 +187,16 @@ function top_panel($user, $TAB) {
         header("Location: /error/");
         exit;
     }
-    if (version_compare(PHP_VERSION, '5.6', '==')) {
-        $panel = json_decode(implode('', $output), true);
-    } else {
-        $panel = json_decode(implode('', $output), true);
-        if (!is_array($panel)) { $panel = array(); }
-    }
+    $panel = json_decode(implode('', $output), true);
+    if (!is_array($panel)) $panel = array();
     unset($output);
 
 
     // getting notifications
     $command = VESTA_CMD."v-list-user-notifications '".$user."' 'json'";
     exec ($command, $output, $return_var);
-    if (version_compare(PHP_VERSION, '5.6', '==')) {
-        $notifications = json_decode(implode('', $output), true);
-    } else {
-        $notifications = json_decode(implode('', $output), true);
-        if (!is_array($notifications)) { $notifications = array(); }
-    }
+    $notifications = json_decode(implode('', $output), true);
+    if (!is_array($notifications)) $notifications = array();
     foreach($notifications as $message){
         if(isset($message['ACK']) && $message['ACK'] == 'no'){
             $panel[$user]['NOTIFICATIONS'] = 'yes';
@@ -229,14 +215,10 @@ function top_panel($user, $TAB) {
 
 function translate_date($date){
   $date = strtotime($date);
-  if (version_compare(PHP_VERSION, '5.6', '==')) {
-    return strftime("%d &nbsp;", $date).__(strftime("%b", $date)).strftime(" &nbsp;%Y", $date);
-  } else {
-    $day = date('d', $date);
-    $mon = date('M', $date);
-    $year = date('Y', $date);
-    return $day.' &nbsp;'.__($mon).' &nbsp;'.$year;
-  }
+  $day = date('d', $date);
+  $mon = date('M', $date);
+  $year = date('Y', $date);
+  return $day.' &nbsp;'.__($mon).' &nbsp;'.$year;
 }
 
 function humanize_time($usage) {

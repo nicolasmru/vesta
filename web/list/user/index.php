@@ -12,7 +12,7 @@ if ($user == 'admin') {
     exec (VESTA_CMD . "v-list-user ".$user." json", $output, $return_var);
 }
 $data = json_decode(implode('', $output), true);
-if (version_compare(PHP_VERSION, '5.6', '==')) { $data = array_reverse($data,true); } else { $data = is_array($data) ? array_reverse($data,true) : array(); }
+$data = is_array($data) ? array_reverse($data,true) : array();
 
 // Check and get changelog if needed
 if ($user == 'admin') {

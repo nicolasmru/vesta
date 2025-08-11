@@ -15,7 +15,7 @@ if ($_SESSION['user'] != 'admin') {
 // Data
 exec (VESTA_CMD."v-list-user-packages json", $output, $return_var);
 $data = json_decode(implode('', $output), true);
-if (version_compare(PHP_VERSION, '5.6', '!=') && !is_array($data)) { $data = array(); }
+if (!is_array($data)) $data = array();
 unset($output);
 
 // Render page
