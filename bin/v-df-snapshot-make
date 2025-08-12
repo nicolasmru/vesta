@@ -1,0 +1,20 @@
+#!/bin/bash
+# info: Make a snapshot of the disk usage
+# options: NONE
+
+folder="/usr/local/vesta/data/df"
+
+mkdir -p $folder
+timestamp=$(date +%Y-%m-%d-%H-%M-%S)
+du --max-depth=1 -c -m -x / > $folder/snapshot-$timestamp.txt
+du --max-depth=1 -c -m -x /home >> $folder/snapshot-$timestamp.txt
+du --max-depth=2 -c -m -x /home >> $folder/snapshot-$timestamp.txt
+du --max-depth=3 -c -m -x /home >> $folder/snapshot-$timestamp.txt
+du --max-depth=6 -c -m -x /home >> $folder/snapshot-$timestamp.txt
+du --max-depth=1 -c -m -x /var/lib/mysql >> $folder/snapshot-$timestamp.txt
+du --max-depth=1 -c -m -x /var/log >> $folder/snapshot-$timestamp.txt
+
+chmod 600 $folder/snapshot-$timestamp.txt
+chown root:root $folder/snapshot-$timestamp.txt
+
+exit 0

@@ -1896,6 +1896,10 @@ command="sudo $VESTA/bin/v-update-sys-rrd"
 $VESTA/bin/v-add-cron-job 'admin' '*/5' '*' '*' '*' '*' "$command"
 command="sudo $VESTA/bin/v-fix-website-permissions-for-all-websites-only-php"
 $VESTA/bin/v-add-cron-job 'admin' '05' '03' '*' '*' '*' "$command"
+command="sudo $VESTA/bin/v-df-snapshot-make"
+$VESTA/bin/v-add-cron-job 'admin' '05' '04' '*' '*' '*' "$command"
+command="sudo $VESTA/bin/v-df-snapshot-logs-cleaner"
+$VESTA/bin/v-add-cron-job 'admin' '10' '04' '*' '*' '*' "$command"
 systemctl restart cron.service
 
 echo "== Building inititall rrd images"

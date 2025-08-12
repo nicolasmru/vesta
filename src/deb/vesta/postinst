@@ -38,6 +38,20 @@ if grep -q "fix-website-permissions-for-all-websites" /usr/local/vesta/data/user
     fi
 fi
 
+# Adding cron job for disk usage snapshot
+if ! grep -q "v-df-snapshot-make" /usr/local/vesta/data/users/admin/cron.conf; then
+    echo "== Adding cron job for disk usage snapshot"
+    command="sudo $VESTA/bin/v-df-snapshot-make"
+    $VESTA/bin/v-add-cron-job 'admin' '05' '04' '*' '*' '*' "$command"
+    systemctl restart cron.service
+fi
+if ! grep -q "v-df-snapshot-logs-cleaner" /usr/local/vesta/data/users/admin/cron.conf; then
+    echo "== Adding cron job for disk usage snapshot logs cleaner"
+    command="sudo $VESTA/bin/v-df-snapshot-logs-cleaner"
+    $VESTA/bin/v-add-cron-job 'admin' '10' '04' '*' '*' '*' "$command"
+    systemctl restart cron.service
+fi
+
 # Fixing PHP and .env permissions and ownership for all websites
 if ! grep -q "fix-website-permissions-for-all-websites-only-php" /usr/local/vesta/data/users/admin/cron.conf; then
     echo "== Fixing PHP and .env permissions and ownership for all websites"
