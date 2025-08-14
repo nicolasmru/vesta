@@ -1145,6 +1145,12 @@ if [ "$nginx" = 'yes' ]; then
     
     echo > /etc/nginx/conf.d/vesta.conf
     mkdir -p /var/log/nginx/domains
+
+    if [ "$apache" = 'yes'  ]; then
+        # SSL fix for Apache 2.4.65+
+        echo -e "proxy_ssl_server_name on;\nproxy_ssl_name \$host;\nproxy_ssl_session_reuse off;" > /etc/nginx/conf.d/fixssl.conf
+    fi
+
     #update-rc.d nginx defaults
     #service nginx start
     currentservice='nginx'

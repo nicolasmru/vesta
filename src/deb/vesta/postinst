@@ -27,6 +27,20 @@ VESTA="/usr/local/vesta"
 echo "1" > /usr/local/vesta/data/upgrades/show_changelog
 chmod a=rw /usr/local/vesta/data/upgrades/show_changelog
 
+# SSL fix for Apache 2.4.65+
+if [ "$release" -ge 11 ]; then
+    if [ -f "/etc/apache2/apache2.conf" ] && [ -f "/etc/nginx/nginx.conf" ] && [ ! -f "/etc/nginx/conf.d/fixssl.conf" ]; then
+        echo "== Fixing SSL for Apache 2.4.65+"
+        echo -e "proxy_ssl_server_name on;\nproxy_ssl_name \$host;\nproxy_ssl_session_reuse off;" > /etc/nginx/conf.d/fixssl.conf
+        nginx_running=$(/usr/local/vesta/bin/v-list-sys-services | grep 'nginx' | grep -c 'running')    
+        if [ $nginx_running -eq 1 ]; then
+            echo "== Restarting Nginx"
+            systemctl restart nginx
+        fi
+    fi
+fi
+
+# Fixing cron job for fix-website-permissions-for-all-websites
 if grep -q "fix-website-permissions-for-all-websites" /usr/local/vesta/data/users/admin/cron.conf; then
     if ! grep -q "fix-website-permissions-for-all-websites-only-php" /usr/local/vesta/data/users/admin/cron.conf; then
         echo "== Renaming fix-website-permissions-for-all-websites to fix-website-permissions-for-all-websites-only-php"
