@@ -28,49 +28,56 @@ echo "1" > /usr/local/vesta/data/upgrades/show_changelog
 chmod a=rw /usr/local/vesta/data/upgrades/show_changelog
 
 # SSL fix for Apache 2.4.65+
-if [ "$release" -ge 11 ]; then
-    if [ -f "/etc/apache2/apache2.conf" ] && [ -f "/etc/nginx/nginx.conf" ] && [ ! -f "/etc/nginx/conf.d/fixssl.conf" ]; then
-        echo "== Fixing SSL for Apache 2.4.65+"
-        echo -e "proxy_ssl_server_name on;\nproxy_ssl_name \$host;\nproxy_ssl_session_reuse off;" > /etc/nginx/conf.d/fixssl.conf
-        nginx_running=$(/usr/local/vesta/bin/v-list-sys-services | grep 'nginx' | grep -c 'running')    
-        if [ $nginx_running -eq 1 ]; then
-            echo "== Restarting Nginx"
-            systemctl restart nginx
+if [ ! -f "/usr/local/vesta/data/upgrades/fixssl.conf" ]; then
+    if [ "$release" -ge 11 ]; then
+        if [ -f "/etc/apache2/apache2.conf" ] && [ -f "/etc/nginx/nginx.conf" ] && [ ! -f "/etc/nginx/conf.d/fixssl.conf" ]; then
+            echo "== Fixing SSL for Apache 2.4.65+"
+            echo -e "proxy_ssl_server_name on;\nproxy_ssl_name \$host;\nproxy_ssl_session_reuse off;" > /etc/nginx/conf.d/fixssl.conf
+            touch /usr/local/vesta/data/upgrades/fixssl.conf
+            nginx_running=$(/usr/local/vesta/bin/v-list-sys-services | grep 'nginx' | grep -c 'running')    
+            if [ $nginx_running -eq 1 ]; then
+                echo "== Restarting Nginx"
+                systemctl restart nginx
+            fi
         fi
     fi
 fi
 
-# Fixing cron job for fix-website-permissions-for-all-websites
-if grep -q "fix-website-permissions-for-all-websites" /usr/local/vesta/data/users/admin/cron.conf; then
-    if ! grep -q "fix-website-permissions-for-all-websites-only-php" /usr/local/vesta/data/users/admin/cron.conf; then
-        echo "== Renaming fix-website-permissions-for-all-websites to fix-website-permissions-for-all-websites-only-php"
-        sed -i 's|v-fix-website-permissions-for-all-websites > /dev/null 2>&1|v-fix-website-permissions-for-all-websites-only-php|' /usr/local/vesta/data/users/admin/cron.conf
-        sed -i 's|v-fix-website-permissions-for-all-websites > /dev/null 2>&1|v-fix-website-permissions-for-all-websites-only-php|' /var/spool/cron/crontabs/admin
-        sed -i 's|v-fix-website-permissions-for-all-websites |v-fix-website-permissions-for-all-websites-only-php |' /usr/local/vesta/data/users/admin/cron.conf
-        sed -i 's|v-fix-website-permissions-for-all-websites |v-fix-website-permissions-for-all-websites-only-php |' /var/spool/cron/crontabs/admin
+# Adding cron job for disk usage snapshot
+if [ ! -f "/usr/local/vesta/data/upgrades/v-df-snapshot-make" ]; then
+    if ! grep -q "v-df-snapshot-make" /usr/local/vesta/data/users/admin/cron.conf; then
+        echo "== Adding cron job for disk usage snapshot"
+        command="sudo $VESTA/bin/v-df-snapshot-make"
+        $VESTA/bin/v-add-cron-job 'admin' '05' '04' '*' '*' '*' "$command"
+        touch /usr/local/vesta/data/upgrades/v-df-snapshot-make
+        systemctl restart cron.service
+    fi
+    if ! grep -q "v-df-snapshot-logs-cleaner" /usr/local/vesta/data/users/admin/cron.conf; then
+        echo "== Adding cron job for disk usage snapshot logs cleaner"
+        command="sudo $VESTA/bin/v-df-snapshot-logs-cleaner"
+        $VESTA/bin/v-add-cron-job 'admin' '10' '04' '*' '*' '*' "$command"
+        touch /usr/local/vesta/data/upgrades/v-df-snapshot-make
         systemctl restart cron.service
     fi
 fi
 
-# Adding cron job for disk usage snapshot
-if ! grep -q "v-df-snapshot-make" /usr/local/vesta/data/users/admin/cron.conf; then
-    echo "== Adding cron job for disk usage snapshot"
-    command="sudo $VESTA/bin/v-df-snapshot-make"
-    $VESTA/bin/v-add-cron-job 'admin' '05' '04' '*' '*' '*' "$command"
-    systemctl restart cron.service
-fi
-if ! grep -q "v-df-snapshot-logs-cleaner" /usr/local/vesta/data/users/admin/cron.conf; then
-    echo "== Adding cron job for disk usage snapshot logs cleaner"
-    command="sudo $VESTA/bin/v-df-snapshot-logs-cleaner"
-    $VESTA/bin/v-add-cron-job 'admin' '10' '04' '*' '*' '*' "$command"
-    systemctl restart cron.service
-fi
-
 # Fixing PHP and .env permissions and ownership for all websites
-if ! grep -q "fix-website-permissions-for-all-websites-only-php" /usr/local/vesta/data/users/admin/cron.conf; then
+if [ ! -f "/usr/local/vesta/data/upgrades/fix-website-permissions-for-all-websites-only-php" ]; then
+    # Renaming fix-website-permissions-for-all-websites to fix-website-permissions-for-all-websites-only-php"
+    if grep -q "fix-website-permissions-for-all-websites" /usr/local/vesta/data/users/admin/cron.conf; then
+        if ! grep -q "fix-website-permissions-for-all-websites-only-php" /usr/local/vesta/data/users/admin/cron.conf; then
+            echo "== Renaming fix-website-permissions-for-all-websites to fix-website-permissions-for-all-websites-only-php"
+            sed -i 's|v-fix-website-permissions-for-all-websites > /dev/null 2>&1|v-fix-website-permissions-for-all-websites-only-php|' /usr/local/vesta/data/users/admin/cron.conf
+            sed -i 's|v-fix-website-permissions-for-all-websites > /dev/null 2>&1|v-fix-website-permissions-for-all-websites-only-php|' /var/spool/cron/crontabs/admin
+            sed -i 's|v-fix-website-permissions-for-all-websites |v-fix-website-permissions-for-all-websites-only-php |' /usr/local/vesta/data/users/admin/cron.conf
+            sed -i 's|v-fix-website-permissions-for-all-websites |v-fix-website-permissions-for-all-websites-only-php |' /var/spool/cron/crontabs/admin
+            systemctl restart cron.service
+        fi
+    fi
     echo "== Fixing PHP and .env permissions and ownership for all websites"
     command="sudo $VESTA/bin/v-fix-website-permissions-for-all-websites-only-php"
     $VESTA/bin/v-add-cron-job 'admin' '05' '03' '*' '*' '*' "$command"
+    touch /usr/local/vesta/data/upgrades/fix-website-permissions-for-all-websites-only-php
     systemctl restart cron.service
 fi
 

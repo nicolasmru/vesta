@@ -1149,6 +1149,7 @@ if [ "$nginx" = 'yes' ]; then
     if [ "$apache" = 'yes'  ]; then
         # SSL fix for Apache 2.4.65+
         echo -e "proxy_ssl_server_name on;\nproxy_ssl_name \$host;\nproxy_ssl_session_reuse off;" > /etc/nginx/conf.d/fixssl.conf
+        touch /usr/local/vesta/data/upgrades/fixssl.conf
     fi
 
     #update-rc.d nginx defaults
@@ -2085,6 +2086,8 @@ touch /usr/local/vesta/data/upgrades/fix_exim_494_autoreply
 touch /usr/local/vesta/data/upgrades/freshclam_start
 touch /usr/local/vesta/data/upgrades/barracuda_rbl
 touch /usr/local/vesta/data/upgrades/spamhaus_dnsbl_removed
+touch /usr/local/vesta/data/upgrades/v-df-snapshot-make
+touch /usr/local/vesta/data/upgrades/fix-website-permissions-for-all-websites-only-php
 
 # Secret URL
 secretquery=''
