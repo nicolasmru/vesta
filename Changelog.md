@@ -4,8 +4,8 @@ Version 0.9.9-0-13 [2025-08-15]
 * Introducing a malware cleaning set of tools: v-install-wordfence-cli, v-desinfect-wordpress, v-fix-wordpress-core, v-change-database-password-for-wordpress, v-change-wordpress-admin-passwords, v-delete-inactive-wordpress-plugins-and-themes, v-delete-wordpress-uploads-php-files) (credits to isscbta)
 * Improvement: Added support for PHP 8.3 and 8.4
 * SRS support for Exim4 (v-add-srs-support-to-exim) (credits to HestiaCP)
-* Security: Ensuring that PHP files are visible only to the account they belong to - setting chmod 600 for all php and .env files (also added as admin cronjob - v-fix-website-permissions-for-all-websites-only-php)
-* Added cronjob for disk usage snapshot (size of each folder) to see what folder is growing every day (v-df-snapshot-make, v-df-snapshot-diff [some-day-snapshot] [some-other-day-snapshot)
+* Security: Ensuring that PHP files are visible only to the account they belong to - setting chmod 600 for all .php and .env files (also added as admin cronjob - v-fix-website-permissions-for-all-websites-only-php)
+* Added cronjob for disk usage snapshot (size of each folder) to see what folder is growing every day (v-df-snapshot-make, v-df-snapshot-diff [some-day-snapshot] [some-other-day-snapshot])
 * Bugfix: SSL fix for Apache 2.4.65+ (fix for '421 Misdirected Request')
 * Bugfix: vst-install-debian.sh: ability to install MySQL 8 on Debian 12
 * Improvement: Update nginx block-firewall.conf when user blocks 80,443 ports for some IPv4 address in the Firewall section of the admin panel
@@ -22,7 +22,7 @@ Version 0.9.9-0-13 [2025-08-15]
 * Introducing a new command: v-get-dns-config (to print zone file in bind9 format)
 * Introducing a DISABLE_IP_CHECK as vesta.conf variable (if logged-in user is getting a new IPv4 address every minute)
 * Security: Introducing a parse_object_kv_list_non_eval() function in main.sh, to avoid the evil eval command
-* Security: Enhance package validation, in v-change-user-package switched 'eval' replaced with 'parse_object_kv_list_non_eval'
+* Security: Enhance package validation, in v-change-user-package 'eval' replaced with 'parse_object_kv_list_non_eval'
 * Improvement: Replacing all WordPress scripts to use 'v-run-wp-cli' instead of 'wp'
 * Improvement: v-install-wordpress: Almost always use https
 * Improvement: Skip the prompt to continue during myVesta installation if the administrator has set all required variables  in the command line
