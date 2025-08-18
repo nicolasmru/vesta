@@ -20,7 +20,19 @@ codename="$(cat /etc/os-release |grep VERSION= |cut -f 2 -d \(|cut -f 1 -d \))"
 vestacp="$VESTA/install/$VERSION/$release"
 ARCH="amd64"
 
-if [ "$release" -eq 12 ]; then
+if [ "$release" -eq 13 ]; then
+    software="nginx apache2 apache2-utils
+        libapache2-mod-fcgid php-fpm php
+        php-common php-cgi php-mysql php-curl php-fpm php-pgsql awstats
+        vsftpd proftpd-basic bind9 exim4 exim4-daemon-heavy
+        clamav-daemon spamassassin dovecot-imapd dovecot-pop3d roundcube-core
+        roundcube-mysql roundcube-plugins mariadb-server mariadb-common
+        mariadb-client postgresql postgresql-contrib phpmyadmin mc
+        flex whois git idn zip sudo bc ftp lsof ntpdate rrdtool quota
+        e2fslibs bsdutils e2fsprogs curl imagemagick fail2ban dnsutils
+        bsdmainutils cron vesta vesta-nginx vesta-php expect libmail-dkim-perl
+        unrar-free vim-common net-tools unzip iptables xxd spamd"
+elif [ "$release" -eq 12 ]; then
     software="nginx apache2 apache2-utils
         libapache2-mod-fcgid php-fpm php
         php-common php-cgi php-mysql php-curl php-fpm php-pgsql awstats
@@ -1083,6 +1095,22 @@ if [ "$release" -eq 12 ]; then
     ln  -s /usr/local/vesta/data/templates/web/nginx/php-fpm/default.stpl /usr/local/vesta/data/templates/web/nginx/php-fpm/PHP-FPM-82.stpl
     ln  -s /usr/local/vesta/data/templates/web/nginx/php-fpm/default.tpl /usr/local/vesta/data/templates/web/nginx/php-fpm/PHP-FPM-82.tpl
 fi
+if [ "$release" -eq 13 ]; then
+    echo "== Symlink missing templates"
+    ln -s /usr/local/vesta/data/templates/web/nginx/hosting.sh /usr/local/vesta/data/templates/web/nginx/default.sh
+    ln -s /usr/local/vesta/data/templates/web/nginx/hosting.tpl /usr/local/vesta/data/templates/web/nginx/default.tpl
+    ln -s /usr/local/vesta/data/templates/web/nginx/hosting.stpl /usr/local/vesta/data/templates/web/nginx/default.stpl
+
+    ln -s /usr/local/vesta/data/templates/web/apache2/PHP-FPM-84.sh /usr/local/vesta/data/templates/web/apache2/hosting.sh
+    ln -s /usr/local/vesta/data/templates/web/apache2/PHP-FPM-84.tpl /usr/local/vesta/data/templates/web/apache2/hosting.tpl
+    ln -s /usr/local/vesta/data/templates/web/apache2/PHP-FPM-84.stpl /usr/local/vesta/data/templates/web/apache2/hosting.stpl
+    ln -s /usr/local/vesta/data/templates/web/apache2/PHP-FPM-84.sh /usr/local/vesta/data/templates/web/apache2/default.sh
+    ln -s /usr/local/vesta/data/templates/web/apache2/PHP-FPM-84.tpl /usr/local/vesta/data/templates/web/apache2/default.tpl
+    ln -s /usr/local/vesta/data/templates/web/apache2/PHP-FPM-84.stpl /usr/local/vesta/data/templates/web/apache2/default.stpl
+    
+    ln  -s /usr/local/vesta/data/templates/web/nginx/php-fpm/default.stpl /usr/local/vesta/data/templates/web/nginx/php-fpm/PHP-FPM-84.stpl
+    ln  -s /usr/local/vesta/data/templates/web/nginx/php-fpm/default.tpl /usr/local/vesta/data/templates/web/nginx/php-fpm/PHP-FPM-84.tpl
+fi
 
 echo "== Set nameservers address"
 sed -i "s/YOURHOSTNAME1/ns1.$servername/" /usr/local/vesta/data/packages/default.pkg
@@ -1207,7 +1235,13 @@ fi
 
 if [ "$phpfpm" = 'yes' ]; then
     echo "=== Configure PHP-FPM"
-    if [ "$release" -eq 12 ]; then
+    if [ "$release" -eq 13 ]; then
+        cp -f $vestacp/php-fpm/www.conf /etc/php/8.4/fpm/pool.d/www.conf
+        #update-rc.d php8.4-fpm defaults
+        currentservice='php8.4-fpm'
+        ensure_startup $currentservice
+        ensure_start $currentservice
+    elif [ "$release" -eq 12 ]; then
         cp -f $vestacp/php-fpm/www.conf /etc/php/8.2/fpm/pool.d/www.conf
         #update-rc.d php8.2-fpm defaults
         currentservice='php8.2-fpm'
@@ -1885,6 +1919,20 @@ if [ "$release" -eq 12 ]; then
     /usr/local/vesta/bin/v-change-web-domain-proxy-tpl 'admin' "$servername" 'hosting-webmail-phpmyadmin' 'jpg,jpeg,gif,png,ico,svg,css,zip,tgz,gz,rar,bz2,doc,xls,exe,pdf,ppt,txt,odt,ods,odp,odf,tar,wav,bmp,rtf,js,mp3,avi,mpeg,flv,woff,woff2' 'yes'
   fi
 fi
+if [ "$release" -eq 13 ]; then
+  if [ -f "/etc/php/8.4/fpm/pool.d/$servername.conf" ]; then
+    echo "== FPM pool.d $servername tweaks"
+    sed -i "/^group =/c\group = www-data" /etc/php/8.4/fpm/pool.d/$servername.conf
+    sed -i "/max_execution_time/c\php_admin_value[max_execution_time] = 900" /etc/php/8.4/fpm/pool.d/$servername.conf
+    sed -i "/request_terminate_timeout/c\request_terminate_timeout = 900s" /etc/php/8.4/fpm/pool.d/$servername.conf
+    sed -i "s|80M|800M|g" /etc/php/8.4/fpm/pool.d/$servername.conf
+    sed -i "s|256M|512M|g" /etc/php/8.4/fpm/pool.d/$servername.conf
+    service php8.4-fpm restart
+    ln -s /var/lib/roundcube /var/lib/roundcube/webmail
+    /usr/local/vesta/bin/v-change-web-domain-proxy-tpl 'admin' "$servername" 'hosting-webmail-phpmyadmin' 'jpg,jpeg,gif,png,ico,svg,css,zip,tgz,gz,rar,bz2,doc,xls,exe,pdf,ppt,txt,odt,ods,odp,odf,tar,wav,bmp,rtf,js,mp3,avi,mpeg,flv,woff,woff2' 'yes'
+  fi
+fi
+
 
 echo "== Adding cron jobs"
 command="sudo $VESTA/bin/v-update-sys-queue disk"
@@ -1953,6 +2001,9 @@ fi
 if [ "$release" -eq 12 ]; then
   apt-get -y install php8.2-apcu php8.2-mbstring php8.2-bcmath php8.2-curl php8.2-gd php8.2-intl php8.2-mysql php8.2-mysqlnd php8.2-pdo php8.2-soap php8.2-xml php8.2-zip php8.2-memcache php8.2-memcached php8.2-zip php8.2-imagick php8.2-imap
 fi
+if [ "$release" -eq 13 ]; then
+  apt-get -y install php8.4-apcu php8.4-mbstring php8.4-bcmath php8.4-curl php8.4-gd php8.4-intl php8.4-mysql php8.4-mysqlnd php8.4-pdo php8.4-soap php8.4-xml php8.4-zip php8.4-memcache php8.4-memcached php8.4-zip php8.4-imagick php8.4-imap
+fi
 
 touch /var/log/php-mail.log
 chmod a=rw /var/log/php-mail.log
@@ -2006,6 +2057,13 @@ if [ "$release" -eq 12 ]; then
   patch /etc/php/8.2/fpm/php.ini < /usr/local/vesta/src/deb/for-download/tools/patches/php8.2.patch
   update-alternatives --set php /usr/bin/php8.2
   service php8.2-fpm restart
+fi
+
+if [ "$release" -eq 13 ]; then
+  echo "=== Patching php8.4"
+  patch /etc/php/8.4/fpm/php.ini < /usr/local/vesta/src/deb/for-download/tools/patches/php8.2.patch
+  update-alternatives --set php /usr/bin/php8.4
+  service php8.4-fpm restart
 fi
 
 # echo "=== Patching rcube_vcard.php"
