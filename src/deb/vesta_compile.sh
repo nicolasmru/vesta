@@ -58,11 +58,12 @@ BUILD_DATE=$(date +"%d-%b-%Y")
 
 # Set Version for compiling
 VESTA_V=$VESTA_VER"_amd64"
-NGINX_V='1.29.0'
+
+NGINX_V='1.29.1'
+PHP_V='8.4.11'
 OPENSSL_V='1.1.1w'
 PCRE_V='8.45'
 ZLIB_V='1.3.1'
-PHP_V='8.4.10'
 
 # Generate Links for sourcecode
 NGINX='https://nginx.org/download/nginx-'$NGINX_V'.tar.gz'
