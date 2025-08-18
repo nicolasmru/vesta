@@ -307,6 +307,9 @@ do
         systemctl stop clamav-daemon.service
         systemctl disable clamav-daemon.service
 
+        systemctl stop clamav-daemon.socket
+        systemctl disable clamav-daemon.socket
+
         systemctl stop clamav-freshclam.service
         systemctl disable clamav-freshclam.service
 
