@@ -28,7 +28,7 @@ if [ "$release" -eq 13 ]; then
         clamav-daemon spamassassin dovecot-imapd dovecot-pop3d roundcube-core
         roundcube-mysql roundcube-plugins mariadb-server mariadb-common
         mariadb-client postgresql postgresql-contrib phpmyadmin mc
-        flex whois git idn zip sudo bc ftp lsof ntpdate rrdtool quota
+        flex whois git idn zip sudo bc ftp lsof ntpsec-ntpdate rrdtool quota
         e2fslibs bsdutils e2fsprogs curl imagemagick fail2ban dnsutils
         bsdmainutils cron vesta vesta-nginx vesta-php expect libmail-dkim-perl
         unrar-free vim-common net-tools unzip iptables xxd spamd"
@@ -866,7 +866,7 @@ fi
 echo "=== Enabling daemon autostart"
 rm -f /usr/sbin/policy-rc.d
 
-if [ "$release" -gt 11 ]; then
+if [ "$release" -eq 12 ]; then
     echo "=== Setting up rsyslog"
     currentservice='rsyslog'
     ensure_startup $currentservice
