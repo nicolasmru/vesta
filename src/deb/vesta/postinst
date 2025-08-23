@@ -213,7 +213,7 @@ if [ "$release" -eq 11 ]; then
 	fi
 fi
 
-if [ "$release" -ge 11 ]; then
+if [ "$release" -eq 11 ] || [ "$release" -eq 12 ]; then
     check_grep=$(grep -c '^net\.ipv4\.tcp_window_scaling' /etc/sysctl.conf)
     if [ "$check_grep" -gt 0 ]; then
         echo "=== Removing net.ipv4.tcp_window_scaling"
