@@ -1,0 +1,5 @@
+score RCVD_IN_RP_SAFE 0
+score RCVD_IN_RP_CERTIFIED 0
+score SPF_FAIL 3.0
+score SPF_SOFTFAIL 4.0
+score SPF_NONE 4.0

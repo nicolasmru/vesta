@@ -4,6 +4,3 @@
 *.gz
 .vscode
 .DS_Store
-data
-conf
-log
