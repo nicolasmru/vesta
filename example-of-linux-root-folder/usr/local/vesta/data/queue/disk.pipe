@@ -1,0 +1,7 @@
+/usr/local/vesta/bin/v-update-user-disk admin
+/usr/local/vesta/bin/v-update-web-domains-disk admin
+/usr/local/vesta/bin/v-update-mail-domains-disk admin
+/usr/local/vesta/bin/v-update-user-disk test
+/usr/local/vesta/bin/v-update-web-domains-disk test
+/usr/local/vesta/bin/v-update-mail-domains-disk test
+/usr/local/vesta/bin/v-update-databases-disk test

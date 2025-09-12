@@ -1,0 +1,14 @@
+MAILTO=admin@deb12.localhost.dev
+CONTENT_TYPE="text/plain; charset=utf-8"
+15 02 * * * sudo /usr/local/vesta/bin/v-update-sys-queue disk
+10 00 * * * sudo /usr/local/vesta/bin/v-update-sys-queue traffic
+30 03 * * * sudo /usr/local/vesta/bin/v-update-sys-queue webstats
+*/5 * * * * sudo /usr/local/vesta/bin/v-update-sys-queue backup
+10 01 * * 6 sudo /usr/local/vesta/bin/v-backup-users
+20 00 * * * sudo /usr/local/vesta/bin/v-update-user-stats
+*/5 * * * * sudo /usr/local/vesta/bin/v-update-sys-rrd
+30 2 * * * sudo /usr/local/vesta/bin/v-update-sys-vesta-all
+11 1 * * * sudo /usr/local/vesta/bin/v-update-letsencrypt-ssl
+05 03 * * * sudo /usr/local/vesta/bin/v-fix-website-permissions-for-all-websites-only-php
+05 04 * * * sudo /usr/local/vesta/bin/v-df-snapshot-make
+10 04 * * * sudo /usr/local/vesta/bin/v-df-snapshot-logs-cleaner

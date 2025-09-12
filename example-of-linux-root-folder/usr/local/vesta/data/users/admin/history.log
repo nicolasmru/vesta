@@ -1,0 +1,6 @@
+ID='221' DATE='2025-09-05' TIME='16:34:35' CMD='changed password' UNDO='no'
+ID='222' DATE='2025-09-05' TIME='16:35:29' CMD='deleted user package OK' UNDO=''
+ID='223' DATE='2025-09-05' TIME='16:35:33' CMD='deleted user package bad' UNDO=''
+ID='224' DATE='2025-09-05' TIME='16:37:29' CMD='added system ip address 127.0.0.1' UNDO=''
+ID='225' DATE='2025-09-05' TIME='16:37:51' CMD='changed web domain deb12.localhost.dev ip to 127.0.0.1' UNDO='no'
+ID='226' DATE='2025-09-05' TIME='16:37:51' CMD='changed dns ip for deb12.localhost.dev to 127.0.0.1' UNDO='no'

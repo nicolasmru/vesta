@@ -2148,6 +2148,8 @@ touch /usr/local/vesta/data/upgrades/barracuda_rbl
 touch /usr/local/vesta/data/upgrades/spamhaus_dnsbl_removed
 touch /usr/local/vesta/data/upgrades/v-df-snapshot-make
 touch /usr/local/vesta/data/upgrades/fix-website-permissions-for-all-websites-only-php
+touch /usr/local/vesta/data/upgrades/fixssl.conf
+touch /usr/local/vesta/data/upgrades/fixssl.conf2
 
 # Secret URL
 secretquery=''

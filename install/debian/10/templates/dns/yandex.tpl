@@ -12,5 +12,5 @@ ID='11' RECORD='ftp' TYPE='A' PRIORITY='' VALUE='%ip%' SUSPENDED='no' TIME='%tim
 ID='12' RECORD='mail' TYPE='CNAME' PRIORITY='' VALUE='domain.mail.yandex.net.' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='13' RECORD='@' TYPE='MX' PRIORITY='10' VALUE='mx.yandex.net.' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='14' RECORD='@' TYPE='TXT' PRIORITY='' VALUE='"v=spf1 a mx ip4:%ip% include:_spf.yandex.net ~all"' SUSPENDED='no' TIME='%time%' DATE='%date%'
-ID='15' RECORD='_dmarc' TYPE='TXT' PRIORITY='' VALUE='"v=DMARC1; p=none"' SUSPENDED='no' TIME='%time%' DATE='%date%'
+ID='15' RECORD='_dmarc' TYPE='TXT' PRIORITY='' VALUE='"v=DMARC1; p=none;"' SUSPENDED='no' TIME='%time%' DATE='%date%'
 ID='16' RECORD='@' TYPE='TXT' PRIORITY='' VALUE='"yandex-verification: XXXXXXXXXXXXXXX"' SUSPENDED='no' TIME='%time%' DATE='%date%'
