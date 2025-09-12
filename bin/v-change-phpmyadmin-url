@@ -38,12 +38,12 @@ if [ -z "$OLD_PHPMYADMIN_URL" ] || [ -z "$NEW_PHPMYADMIN_URL" ]; then
     exit 1
 fi
 
-if  [ -L "/usr/share/$NEW_PHPMYADMIN_URL" ] && [ "$NEW_PHPMYADMIN_URL" != "phpmyadmin" ]; then
+if [[ -L "$NEW_PHPMYADMIN_URL" || ( -d "$NEW_PHPMYADMIN_URL" && "$NEW_PHPMYADMIN_URL" != "phpmyadmin" ) ]]; then
     echo "Error: Directory /usr/share/$NEW_PHPMYADMIN_URL already exists"
     exit 1
 fi
 
-if  [ -L "/var/lib/roundcube/$NEW_PHPMYADMIN_URL" ] || [ "$NEW_PHPMYADMIN_URL" = "webmail" ]; then
+if [ -L "/var/lib/roundcube/$NEW_PHPMYADMIN_URL" ] || [ -d "/var/lib/roundcube/$NEW_PHPMYADMIN_URL" ] || [ "$NEW_PHPMYADMIN_URL" = "webmail" ]; then
     echo "Error: Conflict name with Webmail /var/lib/roundcube/$NEW_PHPMYADMIN_URL"
     exit 1
 fi
