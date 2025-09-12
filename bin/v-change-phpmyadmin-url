@@ -30,10 +30,25 @@ wrong_db_pma_url_format() {
     exit 1
 }
 
-OLD_PHPMYADMIN_URL=$(awk -F'/' '/^DB_PMA_URL=/{gsub(/'\''/,""); print $(NF-1)}' /usr/local/vesta/conf/vesta.conf)
-echo "= OLD_PHPMYADMIN_URL: $OLD_PHPMYADMIN_URL"
-
 DB_PMA_URL=$(grep '^DB_PMA_URL=' /usr/local/vesta/conf/vesta.conf)
+if [ ! -z "$DB_PMA_URL" ]; then
+    DB_PMA_URL=$(echo "$DB_PMA_URL" | sed 's|^DB_PMA_URL=||')
+    DB_PMA_URL=$(echo "$DB_PMA_URL" | sed 's|'\''||g')
+fi
+echo "= DB_PMA_URL='$DB_PMA_URL'"
+
+if [[ "$DB_PMA_URL" =~ ^http ]]; then
+    # Extract the URL path from the full URL
+    OLD_PHPMYADMIN_URL=$(echo "$DB_PMA_URL" | sed 's|.*://[^/]*/||' | sed 's|/$||')
+else
+    # If DB_PMA_URL doesn't start with http, treat it as just the path
+    OLD_PHPMYADMIN_URL="$DB_PMA_URL"
+fi
+
+# Remove leading slash if present
+OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|^/||')
+# Remove trailing slash if present
+OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|/$||')
 
 if [ "$OLD_PHPMYADMIN_URL" = "$HOSTNAME" ]; then
    wrong_db_pma_url_format
@@ -48,13 +63,13 @@ if [ -z "$OLD_PHPMYADMIN_URL" ]; then
     fi
 fi
 
+echo "= OLD_PHPMYADMIN_URL: '$OLD_PHPMYADMIN_URL'"
+
 NEW_PHPMYADMIN_URL="$1"
 
 # Remove leading slash if present
-OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|^/||')
 NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|^/||')
 # Remove trailing slash if present
-OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|/$||')
 NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|/$||')
 
 # Validate input
