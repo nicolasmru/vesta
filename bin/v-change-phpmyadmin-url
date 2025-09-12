@@ -19,11 +19,33 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-OLD_PHPMYADMIN_URL=$(awk -F'/' '/^DB_PMA_URL=/{gsub(/'\''/,""); print $2}' /usr/local/vesta/conf/vesta.conf)
-echo "OLD_PHPMYADMIN_URL: $OLD_PHPMYADMIN_URL"
+wrong_db_pma_url_format() {
+    echo "Error: DB_PMA_URL can not be parsed from /usr/local/vesta/conf/vesta.conf"
+    echo "Please check the format of DB_PMA_URL in /usr/local/vesta/conf/vesta.conf"
+    echo "The correct format is:"
+    echo "DB_PMA_URL='https://localhost.dev/phpmyadmin/'"
+    echo ""
+    echo "Currently it is set to: "
+    echo "$DB_PMA_URL"
+    exit 1
+}
+
+OLD_PHPMYADMIN_URL=$(awk -F'/' '/^DB_PMA_URL=/{gsub(/'\''/,""); print $(NF-1)}' /usr/local/vesta/conf/vesta.conf)
+echo "= OLD_PHPMYADMIN_URL: $OLD_PHPMYADMIN_URL"
+
+DB_PMA_URL=$(grep '^DB_PMA_URL=' /usr/local/vesta/conf/vesta.conf)
+
+if [ "$OLD_PHPMYADMIN_URL" = "$HOSTNAME" ]; then
+   wrong_db_pma_url_format
+fi
+
 if [ -z "$OLD_PHPMYADMIN_URL" ]; then
-    echo "DB_PMA_URL='https://$HOSTNAME/phpmyadmin/'" >> /usr/local/vesta/conf/vesta.conf
-    OLD_PHPMYADMIN_URL="phpmyadmin"
+    if [ -z "$DB_PMA_URL" ]; then
+        echo "DB_PMA_URL='https://$HOSTNAME/phpmyadmin/'" >> /usr/local/vesta/conf/vesta.conf
+        OLD_PHPMYADMIN_URL="phpmyadmin"
+    else
+        wrong_db_pma_url_format
+    fi
 fi
 
 NEW_PHPMYADMIN_URL="$1"
@@ -31,6 +53,9 @@ NEW_PHPMYADMIN_URL="$1"
 # Remove leading slash if present
 OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|^/||')
 NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|^/||')
+# Remove trailing slash if present
+OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|/$||')
+NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|/$||')
 
 # Validate input
 if [ -z "$OLD_PHPMYADMIN_URL" ] || [ -z "$NEW_PHPMYADMIN_URL" ]; then
