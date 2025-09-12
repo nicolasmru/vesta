@@ -19,7 +19,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-OLD_PHPMYADMIN_URL=$(awk -F'/' '/^DB_PMA_URL=/{gsub(/'\''/,""); print $(NF-1)}' /usr/local/vesta/conf/vesta.conf)
+OLD_PHPMYADMIN_URL=$(awk -F'/' '/^DB_PMA_URL=/{gsub(/'\''/,""); print $2}' /usr/local/vesta/conf/vesta.conf)
 echo "OLD_PHPMYADMIN_URL: $OLD_PHPMYADMIN_URL"
 if [ -z "$OLD_PHPMYADMIN_URL" ]; then
     echo "DB_PMA_URL='https://$HOSTNAME/phpmyadmin/'" >> /usr/local/vesta/conf/vesta.conf
@@ -28,20 +28,25 @@ fi
 
 NEW_PHPMYADMIN_URL="$1"
 
+# Remove leading slash if present
+OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|^/||')
+NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|^/||')
+
 # Validate input
 if [ -z "$OLD_PHPMYADMIN_URL" ] || [ -z "$NEW_PHPMYADMIN_URL" ]; then
     echo "Error: URL parameters cannot be empty"
     exit 1
 fi
 
-if  [ -d "/usr/share/$NEW_PHPMYADMIN_URL" ] && [ "$NEW_PHPMYADMIN_URL" != "phpmyadmin" ]; then
+if  [ -L "/usr/share/$NEW_PHPMYADMIN_URL" ] && [ "$NEW_PHPMYADMIN_URL" != "phpmyadmin" ]; then
     echo "Error: Directory /usr/share/$NEW_PHPMYADMIN_URL already exists"
     exit 1
 fi
 
-# Remove leading slash if present
-OLD_PHPMYADMIN_URL=$(echo "$OLD_PHPMYADMIN_URL" | sed 's|^/||')
-NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|^/||')
+if  [ -L "/var/lib/roundcube/$NEW_PHPMYADMIN_URL" ] || [ "$NEW_PHPMYADMIN_URL" = "webmail" ]; then
+    echo "Error: Conflict name with Webmail /var/lib/roundcube/$NEW_PHPMYADMIN_URL"
+    exit 1
+fi
 
 # Check if old and new URLs are the same
 if [ "$OLD_PHPMYADMIN_URL" = "$NEW_PHPMYADMIN_URL" ]; then
@@ -120,8 +125,8 @@ update_file "/etc/phpmyadmin/apache.conf" \
     "Alias /$NEW_PHPMYADMIN_URL"
 
 update_file "/usr/local/vesta/conf/vesta.conf" \
-    "/$OLD_PHPMYADMIN_URL/" \
-    "/$NEW_PHPMYADMIN_URL/"
+    "/$OLD_PHPMYADMIN_URL" \
+    "/$NEW_PHPMYADMIN_URL"
 
 if  [ -L "/usr/share/$OLD_PHPMYADMIN_URL" ] && [ "$OLD_PHPMYADMIN_URL" != "phpmyadmin" ]; then
     echo "= Removing symlink from /usr/share/$OLD_PHPMYADMIN_URL"
@@ -181,7 +186,7 @@ echo "Old URL: https://$HOSTNAME/$OLD_PHPMYADMIN_URL/"
 echo "New URL: https://$HOSTNAME/$NEW_PHPMYADMIN_URL/"
 echo "================================================"
 echo "Note: You may need to clear your browser cache to access the new URL."
-echo "Backup files have been created with timestamp suffixes."
+echo "Backup files have been created here /root/backup-phpmyadmin-$timestamp/"
 echo "================================================"
 
 exit 0
