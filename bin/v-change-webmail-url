@@ -19,24 +19,66 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-OLD_WEBMAIL_URL=$(awk -F'/' '/^MAIL_URL=/{gsub(/'\''/,""); print $2}' /usr/local/vesta/conf/vesta.conf)
-echo "OLD_WEBMAIL_URL: $OLD_WEBMAIL_URL"
-if [ -z "$OLD_WEBMAIL_URL" ]; then
-    echo "MAIL_URL='/webmail'" >> /usr/local/vesta/conf/vesta.conf
-    OLD_WEBMAIL_URL="/webmail"
+wrong_mail_url_format() {
+    echo "Error: MAIL_URL can not be parsed from /usr/local/vesta/conf/vesta.conf"
+    echo "Please check the format of MAIL_URL in /usr/local/vesta/conf/vesta.conf"
+    echo "The correct format is:"
+    echo "MAIL_URL='https://localhost.dev/webmail/'"
+    echo ""
+    echo "Currently it is set to: "
+    echo "$MAIL_URL"
+    exit 1
+}
+
+MAIL_URL=$(grep '^MAIL_URL=' /usr/local/vesta/conf/vesta.conf)
+if [ ! -z "$MAIL_URL" ]; then
+    MAIL_URL=$(echo "$MAIL_URL" | sed 's|^MAIL_URL=||')
+    MAIL_URL=$(echo "$MAIL_URL" | sed 's|'\''||g')
+fi
+echo "= MAIL_URL='$MAIL_URL'"
+
+if [[ "$MAIL_URL" =~ ^http ]]; then
+    # Extract the URL path from the full URL
+    OLD_WEBMAIL_URL=$(echo "$MAIL_URL" | sed 's|.*://[^/]*/||' | sed 's|/$||')
+else
+    # If MAIL_URL doesn't start with http, treat it as just the path
+    OLD_WEBMAIL_URL="$MAIL_URL"
 fi
 
+# Remove leading slash if present
+OLD_WEBMAIL_URL=$(echo "$OLD_WEBMAIL_URL" | sed 's|^/||')
+# Remove trailing slash if present
+OLD_WEBMAIL_URL=$(echo "$OLD_WEBMAIL_URL" | sed 's|/$||')
+
+if [ "$OLD_WEBMAIL_URL" = "$HOSTNAME" ]; then
+   wrong_mail_url_format
+fi
+
+if [ -z "$OLD_WEBMAIL_URL" ]; then
+    if [ -z "$MAIL_URL" ]; then
+        echo "MAIL_URL='https://$HOSTNAME/webmail/'" >> /usr/local/vesta/conf/vesta.conf
+        OLD_WEBMAIL_URL="webmail"
+    else
+        wrong_mail_url_format
+    fi
+fi
+
+echo "= OLD_WEBMAIL_URL: '$OLD_WEBMAIL_URL'"
+
 NEW_WEBMAIL_URL="$1"
+
+# Remove leading slash if present
+NEW_WEBMAIL_URL=$(echo "$NEW_WEBMAIL_URL" | sed 's|^/||')
+# Remove trailing slash if present
+NEW_WEBMAIL_URL=$(echo "$NEW_WEBMAIL_URL" | sed 's|/$||')
+
+echo "= NEW_WEBMAIL_URL: '$NEW_WEBMAIL_URL'"
 
 # Validate input
 if [ -z "$OLD_WEBMAIL_URL" ] || [ -z "$NEW_WEBMAIL_URL" ]; then
     echo "Error: URL parameters cannot be empty"
     exit 1
 fi
-
-# Remove leading slash if present
-OLD_WEBMAIL_URL=$(echo "$OLD_WEBMAIL_URL" | sed 's|^/||')
-NEW_WEBMAIL_URL=$(echo "$NEW_WEBMAIL_URL" | sed 's|^/||')
 
 if  [ -L "/var/lib/roundcube/$NEW_WEBMAIL_URL" ] && [ "$NEW_WEBMAIL_URL" != "webmail" ]; then
     echo "Error: Directory /var/lib/roundcube/$NEW_WEBMAIL_URL already exists"

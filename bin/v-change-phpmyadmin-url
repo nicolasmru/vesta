@@ -72,6 +72,8 @@ NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|^/||')
 # Remove trailing slash if present
 NEW_PHPMYADMIN_URL=$(echo "$NEW_PHPMYADMIN_URL" | sed 's|/$||')
 
+echo "= NEW_PHPMYADMIN_URL: '$NEW_PHPMYADMIN_URL'"
+
 # Validate input
 if [ -z "$OLD_PHPMYADMIN_URL" ] || [ -z "$NEW_PHPMYADMIN_URL" ]; then
     echo "Error: URL parameters cannot be empty"
