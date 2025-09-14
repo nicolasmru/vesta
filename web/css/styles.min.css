@@ -1221,7 +1221,7 @@ div.l-content > div.l-separator:nth-of-type(4) {
 }
 
 .l-unit-toolbar {
-    height: 39px;
+    height: 50px;
 }
 
 .l-unit label {
@@ -4261,4 +4261,19 @@ div.ui-dialog + div div{
 }
 .get-ip-info-btn + .get-ip-info-result dl .fa-exclamation-circle {
     color: orange;
+}
+
+.ajax-label {
+    color: #555;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.ajax-newline {
+    margin-bottom: 10px;
+    display: block;
+}
+
+.ajax-button-margin-top {
+    margin-top: 3px;
 }

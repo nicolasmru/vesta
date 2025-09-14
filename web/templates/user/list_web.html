@@ -49,7 +49,10 @@
     <!-- /.l-separator -->
 
 
-
+    <script>
+      var dataset_values = [];
+     </script>
+    
 
 
 
@@ -114,8 +117,22 @@
                             $proxy_ext = str_replace(',', ', ', $data[$key]['PROXY_EXT']);
                         }
                     ?>
-
-
+      <script>
+        dataset_values[<?=$i?>] = {
+          'object': 'web',
+          'action': 'manage',
+          'subaction': '',
+          'step': '1',
+          'title': '<?=$key?>',
+          'domain': '<?=$key?>',
+          'web_template': '<?=$data[$key]['TPL']?>',
+          'proxy_template': '<?=$data[$key]['PROXY']?>',
+          'backend_template': '<?=$data[$key]['BACKEND']?>',
+          'ssl_support': '<?=$data[$key]['SSL']?>',
+          'letsencrypt_support': '<?=$data[$key]['LETSENCRYPT']?>',
+          'ip': '<?=$data[$key]['IP']?>'
+        };
+      </script>        
 
       <div class="l-unit <? if($data[$key]['SUSPENDED'] == 'yes') echo 'l-unit--suspended'; if($_SESSION['favourites']['WEB'][$key] == 1) echo ' l-unit--starred'; ?>" v_unit_id="<?=$key?>" v_section="web"
 id="web-unit-<?=$i?>" sort-ip="<?=str_replace('.', '', $data[$key]['IP'])?>" sort-date="<?=strtotime($data[$key]['DATE'])?>" sort-name="<?=$key?>"
@@ -143,6 +160,7 @@ sort-bandwidth="<?=$data[$key]['U_BANDWIDTH']?>" sort-disk="<?=$data[$key]['U_DI
                 </a>
                 <span class="shortcut delete">&nbsp;Del</span>
               </div>
+              <div class="actions-panel__col actions-panel__logs" style="background-color: #c6d6d9;"><a href="javascript:void(0)" onclick="more_button_click(<?=$i?>)"><?=__('More')?> <i></i></a><span class="shortcut more">&nbsp;&#8629;</span></div>
 
 
             </div>
