@@ -214,6 +214,7 @@ echo 'Ajax script: web / manage, step1, Domain: '.$domain;
     <input type="hidden" name="dataset[subaction]" value="<?=$_POST['dataset']['subaction']?>" />
     <input type="hidden" name="dataset[step]" value="2" />
     <input type="hidden" name="dataset[domain]" value="<?=$_POST['dataset']['domain']?>" />
+    <input type="hidden" name="confirm_required" value="1" id="confirm_required" />
 
     <span class="ajax-label ajax-newline">Variable 1:</span>
     <input type="text" name="var1" value="val1" class="vst-input ajax-newline">

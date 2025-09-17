@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <title>myVesta - <?=__($TAB)?></title>
-  <link rel="stylesheet" href="/css/styles.min.css?1446554113">
+  <link rel="stylesheet" href="/css/styles.min.css?<?=JS_LATEST_UPDATE?>">
   <link type="text/css" href="/css/jquery-custom-dialogs.css" rel="stylesheet" />
   <link href="/css/fonts/font_sans_pro.css" rel="stylesheet">
   <link href="/css/fonts/font_lobster.css" rel="stylesheet">
@@ -50,10 +50,28 @@
 </head>
 <body class="body-<?=strtolower($TAB)?> lang-<?=$_SESSION['language']?>">
 
-  <div id="floating-center-div" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50vw; max-width: 700px; background: #fff; z-index: 9999; box-shadow: 0 4px 32px rgba(0,0,0,0.6); border-radius: 8px; padding: 32px 24px; display: none;">
+  <div id="floating-center-div" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50vw; max-width: 700px; background: #fff; z-index: 9998; box-shadow: 0 4px 32px rgba(0,0,0,0.6); border-radius: 8px; padding: 32px 24px; display: none;">
     <div id="floating-center-div-right-close" style="position: absolute; top: 10px; right: 10px; cursor: pointer; color: #999;">
       <i class="fas fa-times"></i>
     </div>
     <h1 id="floating-center-div-title" style="margin-top: 0;"></h1>
     <div id="floating-center-div-content"></div>
+  </div>
+
+  <div id="confirm-div" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50vw; max-width: 400px; background: #fff; z-index: 9999; box-shadow: 0 4px 32px rgba(0,0,0,0.6); border-radius: 8px; padding: 32px 24px; display: none;">
+    <h1 id="confirm-div-title" style="margin-top: 0;"></h1>
+    <div id="confirm-div-content">
+    </div>
+    <div id="confirm-div-content-input" style="display: none; margin-top: 20px;">
+      <span id="confirm-div-content-input-label" class="ajax-label ajax-newline">Variable 1:</span>
+      <input id="confirm-div-content-input-variable" type="text" name="confirm-div-content-input-variable" value="val1" class="vst-input ajax-newline">
+    </div>
+
+    <div id="confirm-div-buttons-confirm" style="display: none; justify-content: center; margin-top: 20px;">
+      <button id="confirm-div-button-yes" class="button confirm" style="margin-right: 10px;">Yes</button>
+      <button id="confirm-div-button-no" class="button cancel" style="margin-left: 10px;">No</button>
+    </div>
+    <div id="confirm-div-buttons-notify" style="display: none; justify-content: center; margin-top: 20px;">
+      <button id="confirm-div-button-notify" class="button confirm" style="margin-right: 10px; background-color: #2de95f;" autofocus>OK</button>
+    </div>
   </div>

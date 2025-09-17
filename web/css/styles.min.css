@@ -2576,7 +2576,17 @@ a.vst-text:hover b, a.vst-text:active b {
 
 .ui-button:focus, .button:focus {
     border: 1px solid #25af49;
-    background-color: #25af49;
+    background-color: #2de95f;
+}
+
+.button.confirm:focus {
+    border: 1px solid #25af49;
+    background-color: #2fff67;
+}
+
+.button.confirm:active {
+    border: 1px solid #25af49;
+    background-color: #2de95f;
 }
 
 .ui-button.cancel, .button.cancel {
@@ -2594,6 +2604,11 @@ a.vst-text:hover b, a.vst-text:active b {
 .ui-button.cancel:active, .button.cancel:active {
     border: 1px solid #54ca70;
     background-color: #54ca70;
+}
+
+.button.cancel:focus {
+    border: 1px solid #25af49;
+    background-color: #2fff67;
 }
 
 a.button.cancel {
