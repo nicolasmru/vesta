@@ -43,10 +43,11 @@ else
     WP_VERSION="$(PHP=$PHP /usr/local/vesta/bin/v-run-wp-cli "$DOMAIN" core version | tr -d '[:space:]')"
 fi
 
-check_result $? "cannot detect WP version" > /dev/null
-if [ -z "$WP_VERSION" ]; then
-    check_result 1 "empty WP version string"
+if [ -z "$WP_VERSION" ] || [[ "$WP_VERSION" == *"Please"* ]]; then
+    echo "= WordPress is not installed on this domain."
+    exit 1
 fi
+
 echo "Detected WordPress version $WP_VERSION"
 
 # 2ind site owner and path
