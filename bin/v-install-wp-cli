@@ -18,7 +18,6 @@ chmod +x /usr/local/bin/wp
 
 if [ -f "/usr/local/bin/wp" ]; then
     echo "= WP CLI installed successfully."
-    echo "= Usage: v-run-wp-cli DOMAIN WP_CLI_COMMAND"
     exit 0;
 else
     echo "= WP CLI installation failed."

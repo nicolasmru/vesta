@@ -60,9 +60,11 @@ else
 fi
 
 for cmd in "${tasks[@]}"; do
-    if [ ! -x "$cmd" ]; then
-        echo "Command $cmd not found or not executable, skipping."
-        continue
+    if [[ "$cmd" != "INTERACTIVE=1"* ]]; then
+        if [ ! -x "$cmd" ]; then
+            echo "Command $cmd not found or not executable, skipping."
+            continue
+        fi
     fi
 
     if [ "$automatic" = false ]; then
@@ -77,8 +79,12 @@ for cmd in "${tasks[@]}"; do
     fi
 
     echo
-    echo "=== $(basename "$cmd") $domain ==="
-    "$cmd" "$domain"
+    if [[ "$cmd" != "INTERACTIVE=1"* ]]; then
+        echo "=== $(basename "$cmd") $domain ==="
+       "$cmd" "$domain"
+    else
+            INTERACTIVE=1 /usr/local/vesta/bin/v-wf-malware-hyperscan-with-remediate $domain
+    fi
 done
 
 echo
