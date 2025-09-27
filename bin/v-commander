@@ -24,6 +24,9 @@ apt_updated=0
 apt_upgraded=0
 quit_on_empty=0
 
+release=$(/usr/local/vesta/bin/v-get-debian-version)
+codename=$(/usr/local/vesta/bin/v-get-debian-codename)
+
 if [ $SHOWHEADER -eq 1 ]; then
     hostname
     if [ -f "/root/current-status.txt" ]; then
@@ -75,14 +78,16 @@ myhelp() {
     echo "p  = set version of php as default"
     echo "q  = quit"
     echo "r  = reboot"
-    echo "s  = download sury.org apt-get key"
-    echo "n  = download nginx gpg key"
-    echo "freexian = add Freexian repository"
     echo "t  = clean the trash"
     echo "u  = apt-get update"
     echo "v  = update myVesta"
     echo "vo = update myVesta without 'apt-get update'"
     echo "w  = w"
+    echo "-----------------------------"
+    echo "s  = download sury.org apt-get key"
+    echo "n  = download nginx gpg key"
+    echo "freexian             = add Freexian repository"
+    echo "fix-debian-backports = fix Debian backports repository"
     echo "-----------------------------"
     echo "inst v                = install myVesta"
     echo "inst p                = install multi-php"
@@ -111,7 +116,6 @@ myhelp() {
 apt_update() {
     echo "============================="
     echo "== running: apt-get update"
-    release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
     if [ "$release" -lt 10 ]; then
         apt-get update
     else
@@ -219,6 +223,8 @@ do
             echo "============================="
             echo "== renewing sury.org gpg key"
             wget -nv -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+        else
+            echo "== sury.org repository is not installed"
         fi
     fi
 
@@ -226,31 +232,56 @@ do
         if [ -f "/etc/apt/sources.list.d/nginx.list" ]; then
             echo "============================="
             echo "== renewing nginx gpg key"
-            apt-get update
-            apt-get -y install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+            apt-get update > /dev/null 2>&1
+            apt-get -y install curl gnupg2 ca-certificates debian-archive-keyring > /dev/null 2>&1
             curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
-            echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/debian `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
+            echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/debian $codename nginx" | tee /etc/apt/sources.list.d/nginx.list
+        else
+            echo "== nginx repository is not installed"
         fi
     fi
 
     if [ "$answer" = 'freexian' ] || [ "$answer" = 'FREEXIAN' ]; then
         if [ "$release" -lt 11 ]; then
-            echo "============================="
-            echo "== adding Freexian repository"
-            apt-get update
-            apt-get install lsb-release
-            wget https://deb.freexian.com/extended-lts/pool/main/f/freexian-archive-keyring/freexian-archive-keyring_2022.06.08_all.deb && sudo dpkg -i freexian-archive-keyring_2022.06.08_all.deb
-            cat /etc/apt/sources.list
-            mv /etc/apt/sources.list /etc/apt/sources.list.old
-            echo "deb http://deb.freexian.com/extended-lts `lsb_release -cs` main contrib non-free" > /etc/apt/sources.list
-            rm /etc/apt/sources.list.d/hetzner*
+            echo "== Downloading freexian-archive-keyring_2022.06.08_all.deb"
+            wget -nv https://deb.freexian.com/extended-lts/pool/main/f/freexian-archive-keyring/freexian-archive-keyring_2022.06.08_all.deb
+            sudo dpkg -i freexian-archive-keyring_2022.06.08_all.deb
+            backup="/root/sources.list.old.$codename"
+            if grep -q 'debian\.org' /etc/apt/sources.list; then
+                if [ ! -f "$backup" ]; then
+                    echo "== Moving /etc/apt/sources.list to $backup"
+                    mv /etc/apt/sources.list $backup
+                fi
+                echo "== Adding 'deb http://deb.freexian.com/extended-lts $codename main contrib non-free' to /etc/apt/sources.list"
+                echo "deb http://deb.freexian.com/extended-lts $codename main contrib non-free" > /etc/apt/sources.list
+                if ls /etc/apt/sources.list.d/hetzner* 1>/dev/null 2>&1; then
+                rm /etc/apt/sources.list.d/hetzner*
+                fi
+            fi
         else
             echo "== Freexian is not supported on Debian 11 or higher"
         fi
     fi
 
+    if [ "$answer" = 'fix-debian-backports' ] || [ "$answer" = 'FIX-DEBIAN-BACKPORTS' ]; then
+        echo "============================="
+        echo "== fixing Debian backports repository"
+        fix_backports=0
+        if [ "$release" = "11" ]; then
+            if grep -q 'deb\.debian\.org\/debian bullseye-backports' /etc/apt/sources.list; then
+                fix_backports=1
+                echo "== Replacing 'deb http://deb.debian.org/debian bullseye-backports' to 'deb http://archive.debian.org/debian bullseye-backports' in /etc/apt/sources.list"
+                v-sed 'deb http://deb.debian.org/debian bullseye-backports' 'deb http://archive.debian.org/debian bullseye-backports' /etc/apt/sources.list
+            fi
+        fi
+        if [ "$fix_backports" -eq 1 ]; then
+            echo "== Debian backports repository fixed"
+        else
+            echo "== No need to fix Debian backports repository"
+        fi
+    fi
+
     if [ "$answer" = 'e def' ] || [ "$answer" = 'E DEF' ]; then
-        release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
         echo "============================="
         echo "== checking if we need mpm_event mode"
         echo "== detected Debian $release"
@@ -320,7 +351,6 @@ do
     if [ "$answer" = 'dis spam' ] || [ "$answer" = 'DIS SPAM' ]; then
         echo "============================="
         echo "== disabling SpamAssassin"
-        release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
         if [ "$release" -lt 12 ]; then
             systemctl stop spamassassin.service
             systemctl disable spamassassin.service
@@ -373,7 +403,6 @@ do
         echo "============================="
         if [ $automode -ge 1 ]; then
             echo "=== php auto mode detected"
-            release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
             echo "== detected Debian $release"
             if [ "$release" -eq 8 ]; then
                 echo "== set default php 5"
@@ -598,7 +627,6 @@ do
     if [ "$answer" = 'inst v' ] || [ "$answer" = 'INST V' ]; then
         echo "============================="
         echo "== installing myVesta"
-        release=$(cat /etc/debian_version | tr "." "\n" | head -n1)
         if [ "$release" -lt 10 ]; then
             apt-get update
         else
