@@ -86,8 +86,9 @@ myhelp() {
     echo "-----------------------------"
     echo "s  = download sury.org apt-get key"
     echo "n  = download nginx gpg key"
-    echo "freexian             = add Freexian repository"
-    echo "fix-debian-backports = fix Debian backports repository"
+    echo "freexian                  = add Freexian repository"
+    echo "fix-debian-backports      = fix Debian backports repository"
+    echo "update-spamassassin-rules = update SpamAssassin rules"
     echo "-----------------------------"
     echo "inst v                = install myVesta"
     echo "inst p                = install multi-php"
@@ -160,31 +161,43 @@ do
 
 
     if [ "$answer" = 'a' ] || [ "$answer" = 'A' ]; then
-    mv /etc/exim4/exim4.conf.template /etc/exim4/exim4.conf.template-backup
-    cp /usr/local/vesta/install/debian/12/exim/exim4.conf.template /etc/exim4/exim4.conf.template
+        timestamp=$(date +%Y%m%d_%H%M%S)
+        backup="/etc/exim4/exim4.conf.template-backup-$timestamp"
+        mv /etc/exim4/exim4.conf.template $backup
+        cp /usr/local/vesta/install/debian/12/exim/exim4.conf.template /etc/exim4/exim4.conf.template
 
-    touch /etc/exim4/limit_per_email_account_max_sent_emails_per_hour
-    touch /etc/exim4/limit_per_email_account_max_recipients
-    touch /etc/exim4/limit_per_hosting_account_max_sent_emails_per_hour
-    touch /etc/exim4/limit_per_hosting_account_max_recipients
+        eximversion=$(exim4 --version | grep '^Exim version ' | awk '{print $3}')
+        if (( $(echo "$eximversion < 4.96" | bc -l) )); then
+            cp /usr/local/vesta/install/debian/12/exim/exim4.conf.template.without-srs /etc/exim4/exim4.conf.template
+            sed -i "s|message_linelength_limit|#message_linelength_limit|g" /etc/exim4/exim4.conf.template
+        fi
 
-    check_grep=$(grep -c '#SPAMASSASSIN' /etc/exim4/exim4.conf.template-backup)
-    if [ "$check_grep" -eq 0 ]; then
-        sed -i "s|#SPAMASSASSIN|SPAMASSASSIN|g" /etc/exim4/exim4.conf.template
-    fi
+        if (( $(echo "$eximversion < 4.94" | bc -l) )); then
+            sed -i "s|smtputf8_advertise_hosts|#smtputf8_advertise_hosts|g" /etc/exim4/exim4.conf.template
+        fi
 
-    check_grep=$(grep -c '#SPAM_SCORE' /etc/exim4/exim4.conf.template-backup)
-    if [ "$check_grep" -eq 0 ]; then
-        sed -i "s|#SPAM_SCORE|SPAM_SCORE|g" /etc/exim4/exim4.conf.template
-    fi
+        touch /etc/exim4/limit_per_email_account_max_sent_emails_per_hour
+        touch /etc/exim4/limit_per_email_account_max_recipients
+        touch /etc/exim4/limit_per_hosting_account_max_sent_emails_per_hour
+        touch /etc/exim4/limit_per_hosting_account_max_recipients
 
-    check_grep=$(grep -c '#CLAMD' /etc/exim4/exim4.conf.template-backup)
-    if [ "$check_grep" -eq 0 ]; then
-        sed -i "s|#CLAMD|CLAMD|g" /etc/exim4/exim4.conf.template
-    fi
+        check_grep=$(grep -c '#SPAMASSASSIN' $backup)
+        if [ "$check_grep" -eq 0 ]; then
+            sed -i "s|#SPAMASSASSIN|SPAMASSASSIN|g" /etc/exim4/exim4.conf.template
+        fi
 
-    systemctl restart exim4
-    echo "Email rate limit activated."
+        check_grep=$(grep -c '#SPAM_SCORE' $backup)
+        if [ "$check_grep" -eq 0 ]; then
+            sed -i "s|#SPAM_SCORE|SPAM_SCORE|g" /etc/exim4/exim4.conf.template
+        fi
+
+        check_grep=$(grep -c '#CLAMD' $backup)
+        if [ "$check_grep" -eq 0 ]; then
+            sed -i "s|#CLAMD|CLAMD|g" /etc/exim4/exim4.conf.template
+        fi
+
+        systemctl restart exim4
+        echo "Email rate limit activated."
     fi
 
 
@@ -279,6 +292,78 @@ do
         else
             echo "== No need to fix Debian backports repository"
         fi
+    fi
+
+    if [ "$answer" = 'update-spamassassin-rules' ] || [ "$answer" = 'UPDATE-SPAMASSASSIN-RULES' ]; then
+        echo "============================="
+        echo "== updating SpamAssassin rules"
+        if [ "$release" -lt 12 ]; then
+            spamassassin_command='spamassassin'
+            /usr/local/vesta/bin/v-commander 'fix-debian-backports' 'freexian'
+        else
+            spamassassin_command='spamd'
+        fi
+        /usr/local/vesta/bin/v-commander 's' 'n'
+
+        echo "== Running: apt-get update"
+        apt-get update
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            echo "== ERROR: Command returned error, aborting."
+            exit 1;
+        fi
+
+        echo "== Running: apt-get install $spamassassin_command sa-compile re2c make gcc"
+        apt-get -y install $spamassassin_command sa-compile re2c make gcc
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            echo "== ERROR: Command returned $ret - aborting."
+            exit 1;
+        fi
+
+        timestamp=$(date +%Y%m%d_%H%M%S)
+
+        echo "== copy /var/lib/spamassassin to /root/spamassassin-var-lib-backup-$timestamp"
+        cp -r /var/lib/spamassassin /root/spamassassin-var-lib-backup-$timestamp
+
+        echo "== copy /etc/spamassassin to /root/spamassassin-etc-backup-$timestamp"
+        cp -r /etc/spamassassin /root/spamassassin-etc-backup-$timestamp
+
+        echo "== Running: sa-update"
+        sa-update
+        ret=$?
+        if [ $ret -gt 1 ]; then
+            echo "== ERROR: Command returned $ret - aborting."
+            exit 1;
+        fi
+
+        echo "== Running: sa-compile"
+        sa-compile
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            echo "== ERROR: Command returned $ret - aborting."
+            exit 1;
+        fi
+
+        echo "== Running: $spamassassin_command"
+        systemctl restart $spamassassin_command
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            echo "********* ERROR: SpamAssassin not restarted successfully, ret = $ret"
+            exit 1;
+        else
+            echo "== SpamAssassin restarted successfully"
+        fi
+
+        echo "== SpamAssassin rules updated successfully."
+
+        sleep 5
+        grep 'spam' /var/log/syslog | tail -n 50
+        echo ''
+        echo '------------'
+        echo 'Maybe you want to monitor SpamAssassin by running:'
+        echo 'tail -f /var/log/syslog | grep spam'
+        echo '------------'
     fi
 
     if [ "$answer" = 'e def' ] || [ "$answer" = 'E DEF' ]; then
